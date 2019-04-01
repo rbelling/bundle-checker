@@ -4,6 +4,7 @@
     "declaration": true,
     "module": "commonjs",
     "outDir": "build",
+    "paths": { "*": ["types/*"] },
     "sourceMap": true,
     "target": "es2016"
   }
