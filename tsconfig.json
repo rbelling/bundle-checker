@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "module": "commonjs",
+    "outDir": "build",
+    "sourceMap": true,
+    "target": "es2016"
+  }
+}

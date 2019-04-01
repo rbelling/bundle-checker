@@ -24,8 +24,17 @@
   "scripts": {
     "size": "size-limit"
   },
+  "devDependencies": {
+    "@types/node": "^11.11.5",
+    "prettier": "^1.16.4",
+    "tslint": "^5.14.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1"
+  },
   "dependencies": {
-    "size-limit": "^1.0.0"
+    "size-limit": "^1.0.0",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.3333"
   },
   "size-limit": [
     {
