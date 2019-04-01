@@ -1,13 +1,14 @@
 import * as getPrettierFileSize from "bytes";
 import * as glob from "glob";
+import ora from "ora";
 import * as path from "path";
 import * as getSize from "size-limit";
-import * as util from "util";
 import {
   IBundleCheckerParams,
   IBundleCheckerReport
 } from "./types/bundle-checker-types";
 
+const spinner = ora();
 const defaultParams: IBundleCheckerParams = {
   distPath: path.resolve(__dirname, "./example/dist"),
   sizeLimit: 1.5 * 1024 * 1024
@@ -25,31 +26,32 @@ const generateStats = async ({
       }
       getSize(files)
         .then(size => {
-          const prettyBundleSize = getPrettierFileSize(size.parsed);
-          const prettySizeLimit = getPrettierFileSize(sizeLimit);
           const sizeSurplus = size.parsed - sizeLimit;
+          const prettyBundleSize = getPrettierFileSize(size.parsed);
+          const prettyBundleLimit = getPrettierFileSize(sizeLimit);
           if (sizeSurplus > 0) {
             return reject(
               `ERROR: Project is currently ${prettyBundleSize}, which is ${getPrettierFileSize(
                 sizeSurplus
-              )} larger than the maximum allowed size.`
+              )} larger than the maximum allowed size (${prettyBundleLimit}).`
             );
           }
           resolve({
-            reportText: `SUCCESS: Project size: ${prettyBundleSize}`
+            reportText: `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`
           });
         })
         .catch(err => reject(err));
     });
   });
 
+spinner.start(`Checking bundle size`);
 // Todo: this will come from CLI params, instead of using defaultParams
 generateStats(defaultParams)
   .then(({ reportText }) => {
-    console.log(reportText);
+    spinner.succeed(reportText);
     process.exit(0);
   })
   .catch(err => {
-    console.error(err);
+    spinner.fail(err);
     process.exit(1);
   });
