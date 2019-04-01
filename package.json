@@ -1,0 +1,27 @@
+{
+  "name": "bundle-checker",
+  "version": "1.0.0",
+  "description": "Generate stats on JS/CSS bundles from one branch to another",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rbelling/bundle-checker.git"
+  },
+  "keywords": [
+    "bundle",
+    "size",
+    "ci",
+    "tool",
+    "performance",
+    "monitoring"
+  ],
+  "author": "Riccardo Bellingeri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rbelling/bundle-checker/issues"
+  },
+  "homepage": "https://github.com/rbelling/bundle-checker#readme"
+}
