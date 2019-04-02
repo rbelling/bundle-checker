@@ -9,7 +9,6 @@ import {
   IBundleCheckerParams,
   IBundleCheckerReport
 } from "./types/bundle-checker-types";
-// const { log, warn, error } = console;
 
 const dummyParams: IBundleCheckerParams = {
   buildScript: "cd ./example; npm run build",
