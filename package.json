@@ -19,12 +19,15 @@
   },
   "homepage": "https://github.com/rbelling/bundle-checker#readme",
   "scripts": {
-    "test": "ts-node ./index.ts"
+    "test": "jest"
   },
   "devDependencies": {
     "@types/globby": "^9.1.0",
+    "@types/jest": "^24.0.11",
     "@types/node": "^11.11.5",
+    "jest": "^24.5.0",
     "prettier": "^1.16.4",
+    "ts-jest": "^24.0.0",
     "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1"
@@ -37,4 +40,11 @@
     "ts-node": "^8.0.3",
     "typescript": "^3.3.3333"
   },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "testPathIgnorePatterns": ["/node_modules/", "build"],
+    "testEnvironment": "node"
+  }
 }
