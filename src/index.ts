@@ -8,7 +8,7 @@ import * as util from "util";
 import {
   IBundleCheckerParams,
   IBundleCheckerReport
-} from "./types/bundle-checker-types";
+} from "../types/bundle-checker-types";
 
 const exec = util.promisify(childProcessExec);
 const spinner = ora();
