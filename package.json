@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/rbelling/bundle-checker#readme",
   "scripts": {
+    "build": "rm -rf ./build/* && tsc",
     "test": "jest"
   },
   "devDependencies": {
