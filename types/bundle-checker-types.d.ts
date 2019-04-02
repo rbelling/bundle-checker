@@ -3,7 +3,12 @@ export interface IBundleCheckerReport {
 }
 
 export interface IBundleCheckerParams {
-  // Bytes of parsed code (non-gzipped)
+  // Optional distPath represents the dist folder. If present, all of the targetFiles globs will be prepended with this
+  distPath?: string;
+  // The build script that will be run as part of the bundle checker.
+  buildScript: string;
+  // Target number of Bytes of parsed code (non-gzipped)
   sizeLimit: number;
-  distPath: string;
+  // An array of files that we want to compare with another branch. This can contain globs too.
+  targetFiles: string[];
 }
