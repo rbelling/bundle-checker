@@ -1,2 +1,2 @@
 # bundle-checker
-Compare JS/CSS bundles of two git branches
+> CLI tool that generates stats on bundle files

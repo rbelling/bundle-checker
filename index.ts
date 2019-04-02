@@ -9,14 +9,7 @@ import {
   IBundleCheckerParams,
   IBundleCheckerReport
 } from "./types/bundle-checker-types";
-// const { log, warn, error } = console;
 
-const dummyParams: IBundleCheckerParams = {
-  buildScript: "cd ./example; npm run build",
-  distPath: path.resolve(__dirname, "./example/dist"),
-  sizeLimit: 1.5 * 1024 * 1024,
-  targetFilesPattern: ["**/*.css", "**/*.js"]
-};
 const exec = util.promisify(childProcessExec);
 const spinner = ora();
 
@@ -36,7 +29,7 @@ const getBuiltFiles = async (
   return globby(targetFilesPattern);
 };
 
-const generateStats = async ({
+export const generateBundleStats = async ({
   buildScript,
   distPath = "",
   sizeLimit,
@@ -51,26 +44,14 @@ const generateStats = async ({
   const prettyBundleSize = getPrettierFileSize(size.parsed);
   const prettyBundleLimit = getPrettierFileSize(sizeLimit);
   if (sizeSurplus > 0) {
-    throw new Error(
-      `ERROR: Project is currently ${prettyBundleSize}, which is ${getPrettierFileSize(
-        sizeSurplus
-      )} larger than the maximum allowed size (${prettyBundleLimit}).`
-    );
+    const error = `ERROR: Project is currently ${prettyBundleSize}, which is ${getPrettierFileSize(
+      sizeSurplus
+    )} larger than the maximum allowed size (${prettyBundleLimit}).`;
+    throw new Error(error);
   }
   return {
     reportText: `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`
   };
 };
 
-(async () => {
-  spinner.start(`Checking bundle size`);
-  // Todo: this will come from CLI params, instead of using dummyParams
-  try {
-    const { reportText } = await generateStats(dummyParams);
-    spinner.succeed(reportText);
-    process.exit(0);
-  } catch (e) {
-    spinner.fail(e);
-    process.exit(1);
-  }
-})();
+export default generateBundleStats;
