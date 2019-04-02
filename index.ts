@@ -1,27 +1,53 @@
 import * as getPrettierFileSize from "bytes";
+import { exec as childProcessExec } from "child_process";
 import * as globby from "globby";
 import ora from "ora";
 import * as path from "path";
 import * as getSize from "size-limit";
+import * as util from "util";
 import {
   IBundleCheckerParams,
   IBundleCheckerReport
 } from "./types/bundle-checker-types";
+// const { log, warn, error } = console;
 
 const defaultParams: IBundleCheckerParams = {
+  buildScript: "cd ./example; npm run build",
   distPath: path.resolve(__dirname, "./example/dist"),
   sizeLimit: 1.5 * 1024 * 1024,
-  targetBranch: "master"
+  targetFiles: ["**/*.css", "**/*.js"]
+};
+const exec = util.promisify(childProcessExec);
+const spinner = ora();
+
+/**
+ * Run the build script, then return the files matched by the targetFiles glob
+ * @param buildScript
+ * @param targetFiles
+ */
+const getBuiltFiles = async (
+  buildScript: string,
+  targetFiles: string[]
+): Promise<string[]> => {
+  spinner.start(`Running build script: \`${buildScript}\``);
+  await exec(buildScript);
+  spinner.succeed();
+  return globby(targetFiles);
 };
 
 const generateStats = async ({
-  distPath,
-  sizeLimit
+  buildScript,
+  distPath = "",
+  sizeLimit,
+  targetFiles
 }: IBundleCheckerParams): Promise<IBundleCheckerReport> =>
   new Promise(async (resolve, reject) => {
     try {
-      const files = await globby(path.resolve(distPath, "**/*.{js,css}"));
-      const size = await getSize(files);
+      const builtFiles = await getBuiltFiles(
+        buildScript,
+        targetFiles.map(item => path.resolve(distPath, item))
+      );
+      const size = await getSize(builtFiles);
       const sizeSurplus = size.parsed - sizeLimit;
       const prettyBundleSize = getPrettierFileSize(size.parsed);
       const prettyBundleLimit = getPrettierFileSize(sizeLimit);
@@ -41,7 +67,6 @@ const generateStats = async ({
   });
 
 (async () => {
-  const spinner = ora();
   spinner.start(`Checking bundle size`);
   // Todo: this will come from CLI params, instead of using defaultParams
   try {
