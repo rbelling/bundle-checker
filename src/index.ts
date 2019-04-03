@@ -15,15 +15,13 @@ const spinner = ora();
 
 /**
  * Run the build script, then return the files matched by the targetFilesPattern glob
- * @param buildScript the build script (e.g. `cd ../; yarn build`
- * @param distPath string, the build folder path, that will be prepended to the targetFilesPattern
- * @param targetFilesPattern a glob
+ * @param bundleCheckerParams
  */
 const getBuiltFiles = async (
-  buildScript: string,
-  distPath: string,
-  targetFilesPattern: string[]
+  bundleCheckerParams: IBundleCheckerParams
 ): Promise<string[]> => {
+  const { buildScript, distPath, targetFilesPattern } = bundleCheckerParams;
+
   spinner.start(`Running build script: \`${buildScript}\``);
   await exec(buildScript);
   spinner.succeed();
@@ -33,21 +31,14 @@ const getBuiltFiles = async (
   ) as ReadonlyArray<string>);
 };
 
-export const generateBundleStats = async ({
-  buildScript,
-  distPath = "",
-  sizeLimit,
-  targetFilesPattern
-}: IBundleCheckerParams): Promise<IBundleCheckerReport> => {
-  const builtFiles = await getBuiltFiles(
-    buildScript,
-    distPath,
-    targetFilesPattern
-  );
+export const generateBundleStats = async (
+  bundleCheckerParams: IBundleCheckerParams
+): Promise<IBundleCheckerReport> => {
+  const builtFiles = await getBuiltFiles(bundleCheckerParams);
   const size = await getSize(builtFiles);
   const prettyBundleSize = prettyPrint(size.parsed);
-  const prettyBundleLimit = prettyPrint(sizeLimit);
-  const sizeSurplus = size.parsed - sizeLimit;
+  const prettyBundleLimit = prettyPrint(bundleCheckerParams.sizeLimit);
+  const sizeSurplus = size.parsed - bundleCheckerParams.sizeLimit;
   const reportText =
     sizeSurplus > 0
       ? `WARN: Project is currently ${prettyBundleSize}, which is ${prettyPrint(
