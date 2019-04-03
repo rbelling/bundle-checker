@@ -9,6 +9,7 @@ const HUNDRED_KILOBYTES = ONE_MEGABYTE / 10;
 export const dummyParams: IBundleCheckerParams = {
   buildScript: `cd ${path.resolve(__dirname, "../example")}; yarn build`,
   distPath: path.resolve(__dirname, "../example/dist"),
+  installScript: `cd ${path.resolve(__dirname, "../example")}; yarn`,
   sizeLimit: ONE_MEGABYTE,
   targetFilesPattern: ["**/*.css", "**/*.js"]
 };

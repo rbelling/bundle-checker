@@ -13,6 +13,17 @@ import {
 const exec = util.promisify(childProcessExec);
 const spinner = ora();
 
+const installDependencies = async (
+  bundleCheckerParams: IBundleCheckerParams
+): Promise<undefined> => {
+  const { installScript } = bundleCheckerParams;
+  spinner.start(`Installing dependencies with: \`${installScript}\``);
+  await exec(installScript);
+  spinner.succeed();
+
+  return;
+};
+
 /**
  * Run the build script, then return the files matched by the targetFilesPattern glob
  * @param bundleCheckerParams
@@ -34,6 +45,7 @@ const getBuiltFiles = async (
 export const generateBundleStats = async (
   bundleCheckerParams: IBundleCheckerParams
 ): Promise<IBundleCheckerReport> => {
+  await installDependencies(bundleCheckerParams);
   const builtFiles = await getBuiltFiles(bundleCheckerParams);
   const size = await getSize(builtFiles);
   const prettyBundleSize = prettyPrint(size.parsed);
