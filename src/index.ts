@@ -1,9 +1,9 @@
-import * as prettyPrint from "bytes";
+import prettyPrint from "bytes";
 import { exec as childProcessExec } from "child_process";
-import * as globby from "globby";
+import globby from "globby";
 import ora from "ora";
 import * as path from "path";
-import * as getSize from "size-limit";
+import getSize from "size-limit";
 import * as util from "util";
 import {
   IBundleCheckerParams,
