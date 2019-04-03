@@ -15,7 +15,7 @@ const spinner = ora();
 
 /**
  * Run the build script, then return the files matched by the targetFilesPattern glob
- * @param buildScript the build script (e.g. `cd ../; npm run build`
+ * @param buildScript the build script (e.g. `cd ../; yarn build`
  * @param distPath string, the build folder path, that will be prepended to the targetFilesPattern
  * @param targetFilesPattern an absolute p
  */

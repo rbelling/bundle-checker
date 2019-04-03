@@ -7,7 +7,7 @@ const ONE_MEGABYTE = 1 * 1024 * 1024;
 const HUNDRED_KILOBYTES = ONE_MEGABYTE / 10;
 
 export const dummyParams: IBundleCheckerParams = {
-  buildScript: "cd ../example; npm run build",
+  buildScript: "cd ../example; yarn build",
   distPath: path.resolve(__dirname, "../example/dist"),
   sizeLimit: ONE_MEGABYTE,
   targetFilesPattern: ["**/*.css", "**/*.js"]
