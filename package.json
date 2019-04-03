@@ -19,8 +19,10 @@
   },
   "homepage": "https://github.com/rbelling/bundle-checker#readme",
   "scripts": {
-    "test": "jest"
     "build": "rm -rf ./build/* && tsc -p ./tsconfig.prod.json",
+    "test": "jest",
+    "lint": "tslint **/*.ts",
+    "lint:fix": "tslint **/*.ts --fix"
   },
   "devDependencies": {
     "@types/bytes": "^3.0.0",
@@ -33,13 +35,15 @@
     "tslint": "^5.15.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.3.3333",
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.5"
   },
   "dependencies": {
     "bytes": "^3.1.0",
     "globby": "^9.2.0",
-    "ora": "^3.2.0",
-    "size-limit": "^1.0.0",
+    "ora": "^3.3.0",
+    "size-limit": "^1.0.0"
   },
   "jest": {
     "transform": {
@@ -50,5 +54,16 @@
       "/build"
     ],
     "testEnvironment": "node"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "tslint --fix",
+      "git add"
+    ]
   }
 }
