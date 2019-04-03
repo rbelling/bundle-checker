@@ -17,7 +17,7 @@ const spinner = ora();
  * Run the build script, then return the files matched by the targetFilesPattern glob
  * @param buildScript the build script (e.g. `cd ../; yarn build`
  * @param distPath string, the build folder path, that will be prepended to the targetFilesPattern
- * @param targetFilesPattern an absolute p
+ * @param targetFilesPattern a glob
  */
 const getBuiltFiles = async (
   buildScript: string,
@@ -56,5 +56,3 @@ export const generateBundleStats = async ({
       : `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`;
   return { reportText };
 };
-
-export default generateBundleStats;
