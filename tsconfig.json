@@ -12,5 +12,5 @@
     "strict": true,
     "target": "esnext"
   },
-  "include": ["src/index.ts", "types"]
+  "include": ["src", "types"]
 }
