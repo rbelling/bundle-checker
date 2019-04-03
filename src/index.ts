@@ -1,4 +1,4 @@
-import * as getPrettierFileSize from "bytes";
+import * as prettyPrint from "bytes";
 import { exec as childProcessExec } from "child_process";
 import * as globby from "globby";
 import ora from "ora";
@@ -15,18 +15,22 @@ const spinner = ora();
 
 /**
  * Run the build script, then return the files matched by the targetFilesPattern glob
- * @param buildScript
- * @param targetFilesPattern
+ * @param buildScript the build script (e.g. `cd ../; npm run build`
+ * @param distPath string, the build folder path, that will be prepended to the targetFilesPattern
+ * @param targetFilesPattern an absolute p
  */
 const getBuiltFiles = async (
   buildScript: string,
+  distPath: string,
   targetFilesPattern: string[]
 ): Promise<string[]> => {
   spinner.start(`Running build script: \`${buildScript}\``);
   await exec(buildScript);
   spinner.succeed();
 
-  return globby(targetFilesPattern);
+  return globby(targetFilesPattern.map(item =>
+    path.resolve(distPath, item)
+  ) as ReadonlyArray<string>);
 };
 
 export const generateBundleStats = async ({
@@ -37,21 +41,20 @@ export const generateBundleStats = async ({
 }: IBundleCheckerParams): Promise<IBundleCheckerReport> => {
   const builtFiles = await getBuiltFiles(
     buildScript,
-    targetFilesPattern.map(item => path.resolve(distPath, item))
+    distPath,
+    targetFilesPattern
   );
   const size = await getSize(builtFiles);
+  const prettyBundleSize = prettyPrint(size.parsed);
+  const prettyBundleLimit = prettyPrint(sizeLimit);
   const sizeSurplus = size.parsed - sizeLimit;
-  const prettyBundleSize = getPrettierFileSize(size.parsed);
-  const prettyBundleLimit = getPrettierFileSize(sizeLimit);
-  if (sizeSurplus > 0) {
-    const error = `ERROR: Project is currently ${prettyBundleSize}, which is ${getPrettierFileSize(
-      sizeSurplus
-    )} larger than the maximum allowed size (${prettyBundleLimit}).`;
-    throw new Error(error);
-  }
-  return {
-    reportText: `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`
-  };
+  const reportText =
+    sizeSurplus > 0
+      ? `WARN: Project is currently ${prettyBundleSize}, which is ${prettyPrint(
+          sizeSurplus
+        )} larger than the maximum allowed size (${prettyBundleLimit}).`
+      : `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`;
+  return { reportText };
 };
 
 export default generateBundleStats;
