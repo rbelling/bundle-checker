@@ -13,11 +13,15 @@ import {
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
+const getCurrentBranch = async (): Promise<string> => {
+  return (await exec(`git rev-parse --abbrev-ref HEAD`)).stdout.trim();
+};
+
 const installDependencies = async (
   bundleCheckerParams: IBundleCheckerParams
 ): Promise<undefined> => {
   const { installScript } = bundleCheckerParams;
-  const spinner = ora(`Installing dependencies with: \`${installScript}\``);
+  const spinner = ora(`Installing dependencies`);
   spinner.start();
   await exec(installScript);
   spinner.succeed();
@@ -26,12 +30,13 @@ const installDependencies = async (
 };
 
 const getBundleSize = async (
-  bundleCheckerParams: IBundleCheckerParams
+  bundleCheckerParams: IBundleCheckerParams,
+  branch?: string
 ): Promise<number> => {
-  await installDependencies(bundleCheckerParams);
+  const initialBranch = await getCurrentBranch();
   const getTargetedFiles = async (): Promise<string[]> => {
     const { buildScript, distPath, targetFilesPattern } = bundleCheckerParams;
-    const spinner = ora(`Running build script: \`${buildScript}\``);
+    const spinner = ora(`${branch || initialBranch}: Running build script`);
 
     spinner.start();
     await exec(buildScript);
@@ -41,7 +46,19 @@ const getBundleSize = async (
       path.resolve(distPath, item)
     ) as ReadonlyArray<string>);
   };
-  return (await getSize(await getTargetedFiles())).parsed;
+
+  await exec(`git stash`);
+  await exec(`git checkout ${branch || initialBranch}`);
+  await installDependencies(bundleCheckerParams);
+  const bundleSize = (await getSize(await getTargetedFiles())).parsed;
+
+  // Restore repository back to the original branch
+  await exec(`git reset --hard`);
+  await exec(`git clean -f`);
+  await exec(`git checkout ${initialBranch}`);
+  await exec(`git stash apply`);
+
+  return bundleSize;
 };
 
 export const generateBundleStats = async (
@@ -60,43 +77,31 @@ export const generateBundleStats = async (
   return { reportText };
 };
 
-export const compareTwoBranches = async (
+export const compareBranches = async (
+  bundleCheckerParams: IBundleCheckerParams,
   firstBranch: string,
-  secondBranch: string,
-  bundleCheckerParams: IBundleCheckerParams
+  secondBranch: string
 ): Promise<IBundleCheckerReport> => {
+  const spinner = ora(
+    `Comparing bundles in the following branches: ${firstBranch}, ${secondBranch}`
+  );
   let reportText;
 
-  const spinner = ora(`Getting bundle size for branch \`${firstBranch}\``);
   try {
     spinner.start();
-    const initialBranch = (await exec(
-      // Get initial branch so we can revert back to that once comparison has completed
-      `git rev-parse --abbrev-ref HEAD`
-    )).stdout.trim();
-    await exec(`git stash`);
-    await exec(`git checkout ${firstBranch}`);
-    const firstBranchBundleSize = await getBundleSize(bundleCheckerParams);
-    await exec(`git reset --hard`);
-    await exec(`git clean -f`);
-    spinner.succeed();
-
-    spinner.start(`Getting bundle size for branch \`${secondBranch}\``);
-    await exec(`git checkout ${secondBranch}`);
-    const secondBranchBundleSize = await getBundleSize(bundleCheckerParams);
-    await exec(`git reset --hard`);
-    await exec(`git clean -f`);
-    spinner.succeed();
+    const firstBranchBundleSize = await getBundleSize(
+      bundleCheckerParams,
+      firstBranch
+    );
+    const secondBranchBundleSize = await getBundleSize(
+      bundleCheckerParams,
+      secondBranch
+    );
 
     reportText = `
       Bundle size ${firstBranch}: ${firstBranchBundleSize}
       Bundle size ${secondBranch}: ${secondBranchBundleSize}
     `;
-
-    // Go back to the original branch before returning
-    spinner.start(`Restoring original branch \`${initialBranch}\``);
-    await exec(`git checkout ${initialBranch}`);
-    await exec(`git stash apply`);
     spinner.succeed();
   } catch (e) {
     spinner.fail();
