@@ -1,6 +1,6 @@
 import * as path from "path";
 import { IBundleCheckerParams } from "../types/bundle-checker-types";
-import { generateBundleStats } from "./index";
+import { compareTwoBranches, generateBundleStats } from "./index";
 
 const TEN_MINUTES = 10 * 60 * 1000;
 const ONE_MEGABYTE = 1 * 1024 * 1024;
@@ -37,5 +37,17 @@ describe("Bundle Stats tests", () => {
     } catch (e) {
       done.fail(e);
     }
+  });
+
+  test(`bundle size of two branches`, async done => {
+    const { reportText } = await compareTwoBranches(
+      "master",
+      "feat/git-workflow",
+      dummyParams
+    );
+
+    console.log(reportText);
+    expect(true).toBe(true);
+    done();
   });
 });

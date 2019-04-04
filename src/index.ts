@@ -11,6 +11,7 @@ import {
 } from "../types/bundle-checker-types";
 
 const exec = util.promisify(childProcessExec);
+const { error } = console;
 
 const installDependencies = async (
   bundleCheckerParams: IBundleCheckerParams
@@ -57,4 +58,53 @@ export const generateBundleStats = async (
         )} larger than the maximum allowed size (${prettyBundleLimit}).`
       : `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`;
   return { reportText };
+};
+
+export const compareTwoBranches = async (
+  firstBranch: string,
+  secondBranch: string,
+  bundleCheckerParams: IBundleCheckerParams
+): Promise<IBundleCheckerReport> => {
+  let reportText;
+
+  const spinner = ora(`Getting bundle size for branch \`${firstBranch}\``);
+  try {
+    spinner.start();
+    const initialBranch = (await exec(
+      // Get initial branch so we can revert back to that once comparison has completed
+      `git rev-parse --abbrev-ref HEAD`
+    )).stdout.trim();
+    await exec(`git stash`);
+    await exec(`git checkout ${firstBranch}`);
+    const firstBranchBundleSize = await getBundleSize(bundleCheckerParams);
+    await exec(`git reset --hard`);
+    await exec(`git clean -f`);
+    spinner.succeed();
+
+    spinner.start(`Getting bundle size for branch \`${secondBranch}\``);
+    await exec(`git checkout ${secondBranch}`);
+    const secondBranchBundleSize = await getBundleSize(bundleCheckerParams);
+    await exec(`git reset --hard`);
+    await exec(`git clean -f`);
+    spinner.succeed();
+
+    reportText = `
+      Bundle size ${firstBranch}: ${firstBranchBundleSize}
+      Bundle size ${secondBranch}: ${secondBranchBundleSize}
+    `;
+
+    // Go back to the original branch before returning
+    spinner.start(`Restoring original branch \`${initialBranch}\``);
+    await exec(`git checkout ${initialBranch}`);
+    await exec(`git stash apply`);
+    spinner.succeed();
+  } catch (e) {
+    spinner.fail();
+    error(e);
+    reportText = e;
+  }
+
+  return {
+    reportText
+  };
 };

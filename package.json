@@ -20,9 +20,9 @@
   "homepage": "https://github.com/rbelling/bundle-checker#readme",
   "scripts": {
     "build": "rm -rf ./build/* && tsc -p ./tsconfig.prod.json",
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "lint": "tslint **/*.ts",
-    "lint:fix": "tslint **/*.ts --fix"
+    "lint:fix": "yarn lint --fix"
   },
   "devDependencies": {
     "@types/bytes": "^3.0.0",
