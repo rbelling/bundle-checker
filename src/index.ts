@@ -10,7 +10,7 @@ import { IBundleCheckerParams, IBundleCheckerReport } from '../types/bundle-chec
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
-const getCurrentBranch = async (): Promise<string> => {
+export const getCurrentBranch = async (): Promise<string> => {
   return (await exec(`git rev-parse --abbrev-ref HEAD`)).stdout.trim();
 };
 
