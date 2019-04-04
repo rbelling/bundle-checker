@@ -27,11 +27,11 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
 
   const getBundleSize = async (branch?: string): Promise<number> => {
     const initialBranch = await getCurrentBranch();
+    const targetBranch = branch || initialBranch;
+    const spinner = ora(`${targetBranch}: Getting bundle size`);
     const getTargetedFiles = async (): Promise<string[]> => {
       const { buildScript, distPath, targetFilesPattern } = bundleCheckerParams;
-      const spinner = ora(`${branch || initialBranch}: Running build script`);
-
-      spinner.start();
+      spinner.start(`${targetBranch}: Running build script: ${buildScript}`);
       await exec(buildScript);
       spinner.succeed();
 
@@ -40,8 +40,12 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
       >);
     };
 
-    await exec(`git stash`);
-    await exec(`git checkout ${branch || initialBranch}`);
+    const isInitialBranchDirty = Boolean(await exec(`git status --porcelain`));
+    if (isInitialBranchDirty) {
+      spinner.start(`${initialBranch} is dirty - stashing changes`);
+      await exec(`git stash`);
+    }
+    await exec(`git checkout ${targetBranch}`);
     await installDependencies();
     const bundleSize = (await getSize(await getTargetedFiles())).parsed;
 
@@ -49,7 +53,9 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
     await exec(`git reset --hard`);
     await exec(`git clean -f`);
     await exec(`git checkout ${initialBranch}`);
-    await exec(`git stash apply`);
+    if (isInitialBranchDirty) {
+      await exec(`git stash apply`);
+    }
 
     return bundleSize;
   };
