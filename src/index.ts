@@ -1,14 +1,11 @@
-import prettyPrint from "bytes";
-import { exec as childProcessExec } from "child_process";
-import globby from "globby";
-import ora from "ora";
-import * as path from "path";
-import getSize from "size-limit";
-import * as util from "util";
-import {
-  IBundleCheckerParams,
-  IBundleCheckerReport
-} from "../types/bundle-checker-types";
+import prettyPrint from 'bytes';
+import { exec as childProcessExec } from 'child_process';
+import globby from 'globby';
+import ora from 'ora';
+import * as path from 'path';
+import getSize from 'size-limit';
+import * as util from 'util';
+import { IBundleCheckerParams, IBundleCheckerReport } from '../types/bundle-checker-types';
 
 const exec = util.promisify(childProcessExec);
 const { error } = console;
@@ -38,9 +35,9 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
       await exec(buildScript);
       spinner.succeed();
 
-      return globby(targetFilesPattern.map(item =>
-        path.resolve(distPath, item)
-      ) as ReadonlyArray<string>);
+      return globby(targetFilesPattern.map(item => path.resolve(distPath, item)) as ReadonlyArray<
+        string
+      >);
     };
 
     await exec(`git stash`);
@@ -71,12 +68,8 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
     return { reportText };
   };
 
-  const compareBranches = async (
-    ...args: string[]
-  ): Promise<IBundleCheckerReport> => {
-    const spinner = ora(
-      `Comparing bundles in the following branches: ${args.join(", ")}`
-    );
+  const compareBranches = async (...args: string[]): Promise<IBundleCheckerReport> => {
+    const spinner = ora(`Comparing bundles in the following branches: ${args.join(', ')}`);
     let reportText = ``;
 
     try {

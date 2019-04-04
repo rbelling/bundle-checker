@@ -1,1 +1,1 @@
-declare module "size-limit";
+declare module 'size-limit';
