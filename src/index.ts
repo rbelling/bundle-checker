@@ -1,14 +1,11 @@
-import prettyPrint from "bytes";
-import { exec as childProcessExec } from "child_process";
-import globby from "globby";
-import ora from "ora";
-import * as path from "path";
-import getSize from "size-limit";
-import * as util from "util";
-import {
-  IBundleCheckerParams,
-  IBundleCheckerReport
-} from "../types/bundle-checker-types";
+import prettyPrint from 'bytes';
+import { exec as childProcessExec } from 'child_process';
+import globby from 'globby';
+import ora from 'ora';
+import * as path from 'path';
+import getSize from 'size-limit';
+import * as util from 'util';
+import { IBundleCheckerParams, IBundleCheckerReport } from '../types/bundle-checker-types';
 
 const exec = util.promisify(childProcessExec);
 const spinner = ora();
@@ -28,22 +25,18 @@ const getBuiltFiles = async (
   await exec(buildScript);
   spinner.succeed();
 
-  return globby(targetFilesPattern.map(item =>
-    path.resolve(distPath, item)
-  ) as ReadonlyArray<string>);
+  return globby(targetFilesPattern.map(item => path.resolve(distPath, item)) as ReadonlyArray<
+    string
+  >);
 };
 
 export const generateBundleStats = async ({
   buildScript,
-  distPath = "",
+  distPath = '',
   sizeLimit,
   targetFilesPattern
 }: IBundleCheckerParams): Promise<IBundleCheckerReport> => {
-  const builtFiles = await getBuiltFiles(
-    buildScript,
-    distPath,
-    targetFilesPattern
-  );
+  const builtFiles = await getBuiltFiles(buildScript, distPath, targetFilesPattern);
   const size = await getSize(builtFiles);
   const prettyBundleSize = prettyPrint(size.parsed);
   const prettyBundleLimit = prettyPrint(sizeLimit);
