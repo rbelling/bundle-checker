@@ -20,7 +20,7 @@
   "homepage": "https://github.com/rbelling/bundle-checker#readme",
   "scripts": {
     "build": "rm -rf ./build/* && tsc -p ./tsconfig.prod.json",
-    "test": "jest --detectOpenHandles",
+    "test": "jest --verbose",
     "lint": "tslint **/*.ts",
     "lint:fix": "yarn lint --fix"
   },
@@ -53,6 +53,7 @@
       "/node_modules/",
       "/build"
     ],
+    "testMatch": "^[^.]+.spec.ts$",
     "testEnvironment": "node"
   },
   "husky": {

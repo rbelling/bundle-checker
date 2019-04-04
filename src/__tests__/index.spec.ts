@@ -1,14 +1,14 @@
 import * as path from 'path';
-import { IBundleCheckerParams } from '../types/bundle-checker-types';
-import bundleChecker, { getCurrentBranch } from './index';
+import bundleChecker, { getCurrentBranch } from '..';
+import { IBundleCheckerParams } from '../../types/bundle-checker-types';
 
 const TEN_MINUTES = 10 * 60 * 1000;
 const ONE_MEGABYTE = 1 * 1024 * 1024;
 
 export const dummyParams: IBundleCheckerParams = {
-  buildScript: `cd ${path.resolve(__dirname, '../example')}; yarn build`,
-  distPath: path.resolve(__dirname, '../example/dist'),
-  installScript: `cd ${path.resolve(__dirname, '../example')}; yarn`,
+  buildScript: `cd ${path.resolve(__dirname, '../../example')}; yarn build`,
+  distPath: path.resolve(__dirname, '../../example/dist'),
+  installScript: `cd ${path.resolve(__dirname, '../../example')}; yarn`,
   sizeLimit: ONE_MEGABYTE,
   targetFilesPattern: ['**/*.js']
 };
