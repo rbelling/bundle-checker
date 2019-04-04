@@ -8,44 +8,92 @@ import * as util from 'util';
 import { IBundleCheckerParams, IBundleCheckerReport } from '../types/bundle-checker-types';
 
 const exec = util.promisify(childProcessExec);
-const spinner = ora();
+const { error } = console;
 
-/**
- * Run the build script, then return the files matched by the targetFilesPattern glob
- * @param buildScript the build script (e.g. `cd ../; yarn build`
- * @param distPath string, the build folder path, that will be prepended to the targetFilesPattern
- * @param targetFilesPattern a glob
- */
-const getBuiltFiles = async (
-  buildScript: string,
-  distPath: string,
-  targetFilesPattern: string[]
-): Promise<string[]> => {
-  spinner.start(`Running build script: \`${buildScript}\``);
-  await exec(buildScript);
-  spinner.succeed();
-
-  return globby(targetFilesPattern.map(item => path.resolve(distPath, item)) as ReadonlyArray<
-    string
-  >);
+const getCurrentBranch = async (): Promise<string> => {
+  return (await exec(`git rev-parse --abbrev-ref HEAD`)).stdout.trim();
 };
 
-export const generateBundleStats = async ({
-  buildScript,
-  distPath = '',
-  sizeLimit,
-  targetFilesPattern
-}: IBundleCheckerParams): Promise<IBundleCheckerReport> => {
-  const builtFiles = await getBuiltFiles(buildScript, distPath, targetFilesPattern);
-  const size = await getSize(builtFiles);
-  const prettyBundleSize = prettyPrint(size.parsed);
-  const prettyBundleLimit = prettyPrint(sizeLimit);
-  const sizeSurplus = size.parsed - sizeLimit;
-  const reportText =
-    sizeSurplus > 0
-      ? `WARN: Project is currently ${prettyBundleSize}, which is ${prettyPrint(
-          sizeSurplus
-        )} larger than the maximum allowed size (${prettyBundleLimit}).`
-      : `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`;
-  return { reportText };
+export default (bundleCheckerParams: IBundleCheckerParams) => {
+  const installDependencies = async (): Promise<undefined> => {
+    const { installScript } = bundleCheckerParams;
+    const spinner = ora(`Installing dependencies`);
+    spinner.start();
+    await exec(installScript);
+    spinner.succeed();
+
+    return;
+  };
+
+  const getBundleSize = async (branch?: string): Promise<number> => {
+    const initialBranch = await getCurrentBranch();
+    const getTargetedFiles = async (): Promise<string[]> => {
+      const { buildScript, distPath, targetFilesPattern } = bundleCheckerParams;
+      const spinner = ora(`${branch || initialBranch}: Running build script`);
+
+      spinner.start();
+      await exec(buildScript);
+      spinner.succeed();
+
+      return globby(targetFilesPattern.map(item => path.resolve(distPath, item)) as ReadonlyArray<
+        string
+      >);
+    };
+
+    await exec(`git stash`);
+    await exec(`git checkout ${branch || initialBranch}`);
+    await installDependencies();
+    const bundleSize = (await getSize(await getTargetedFiles())).parsed;
+
+    // Restore repository back to the original branch
+    await exec(`git reset --hard`);
+    await exec(`git clean -f`);
+    await exec(`git checkout ${initialBranch}`);
+    await exec(`git stash apply`);
+
+    return bundleSize;
+  };
+
+  const generateBundleStats = async (): Promise<IBundleCheckerReport> => {
+    const bundleSize = await getBundleSize();
+    const prettyBundleSize = prettyPrint(bundleSize);
+    const prettyBundleLimit = prettyPrint(bundleCheckerParams.sizeLimit);
+    const sizeSurplus = bundleSize - bundleCheckerParams.sizeLimit;
+    const reportText =
+      sizeSurplus > 0
+        ? `WARN: Project is currently ${prettyBundleSize}, which is ${prettyPrint(
+            sizeSurplus
+          )} larger than the maximum allowed size (${prettyBundleLimit}).`
+        : `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`;
+    return { reportText };
+  };
+
+  const compareBranches = async (...args: string[]): Promise<IBundleCheckerReport> => {
+    const spinner = ora(`Comparing bundles in the following branches: ${args.join(', ')}`);
+    let reportText = ``;
+
+    try {
+      spinner.start();
+      for (const branch of args) {
+        const bundleSize = await getBundleSize(branch);
+        reportText += `
+          Bundle size ${branch}: ${prettyPrint(bundleSize)}
+        `;
+      }
+      spinner.succeed();
+    } catch (e) {
+      spinner.fail();
+      error(e);
+      reportText = e;
+    }
+
+    return {
+      reportText
+    };
+  };
+
+  return {
+    compareBranches,
+    generateBundleStats
+  };
 };
