@@ -72,23 +72,21 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
   };
 
   const compareBranches = async (
-    firstBranch: string,
-    secondBranch: string
+    ...args: string[]
   ): Promise<IBundleCheckerReport> => {
     const spinner = ora(
-      `Comparing bundles in the following branches: ${firstBranch}, ${secondBranch}`
+      `Comparing bundles in the following branches: ${args.join(", ")}`
     );
-    let reportText;
+    let reportText = ``;
 
     try {
       spinner.start();
-      const firstBranchBundleSize = await getBundleSize(firstBranch);
-      const secondBranchBundleSize = await getBundleSize(secondBranch);
-
-      reportText = `
-      Bundle size ${firstBranch}: ${firstBranchBundleSize}
-      Bundle size ${secondBranch}: ${secondBranchBundleSize}
-    `;
+      for (const branch of args) {
+        const bundleSize = await getBundleSize(branch);
+        reportText += `
+          Bundle size ${branch}: ${prettyPrint(bundleSize)}
+        `;
+      }
       spinner.succeed();
     } catch (e) {
       spinner.fail();
