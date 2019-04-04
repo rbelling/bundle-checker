@@ -1,6 +1,6 @@
 import * as path from "path";
 import { IBundleCheckerParams } from "../types/bundle-checker-types";
-import { compareBranches, generateBundleStats } from "./index";
+import bundleChecker from "./index";
 
 const TEN_MINUTES = 10 * 60 * 1000;
 const ONE_MEGABYTE = 1 * 1024 * 1024;
@@ -19,7 +19,9 @@ describe("Bundle Stats tests", () => {
 
   test("Bundle report text contains the word `SUCCESS` if sizeLimit is set to 1MB", async done => {
     try {
-      const { reportText } = await generateBundleStats(dummyParams);
+      const { reportText } = await bundleChecker(
+        dummyParams
+      ).generateBundleStats();
       expect(reportText).toContain("SUCCESS");
       done();
     } catch (e) {
@@ -28,10 +30,10 @@ describe("Bundle Stats tests", () => {
   });
   test("Bundle report text contains the word `WARN` if sizeLimit is set to 100kB", async done => {
     try {
-      const { reportText } = await generateBundleStats({
+      const { reportText } = await bundleChecker({
         ...dummyParams,
         sizeLimit: HUNDRED_KILOBYTES
-      });
+      }).generateBundleStats();
       expect(reportText).toContain("WARN");
       done();
     } catch (e) {
@@ -40,8 +42,7 @@ describe("Bundle Stats tests", () => {
   });
 
   test(`bundle size of two branches`, async done => {
-    const { reportText } = await compareBranches(
-      dummyParams,
+    const { reportText } = await bundleChecker(dummyParams).compareBranches(
       "master",
       "feat/git-workflow"
     );
