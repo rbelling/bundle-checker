@@ -10,7 +10,16 @@ export interface IBundleCheckerParams {
   // The install script that downloads and install dependencies before the build can start.
   installScript: string;
   // Byte-size limit of parsed code (non-gzipped)
-  sizeLimit: number;
+  sizeLimit?: number;
   // An array of patterns that is used to target distribution files.
   targetFilesPattern: string[];
+  // Github repo to clone and analyze
+  githubRepo: string;
+  currentBranch: string;
+  targetBranch: string;
+}
+
+export interface ITotalSize {
+  js: number;
+  css: number;
 }

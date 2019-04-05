@@ -1,109 +1,115 @@
-import prettyPrint from 'bytes';
+// import printBytes from 'bytes';
 import { exec as childProcessExec } from 'child_process';
 import globby from 'globby';
 import ora from 'ora';
 import * as path from 'path';
 import getSize from 'size-limit';
 import * as util from 'util';
-import { IBundleCheckerParams, IBundleCheckerReport } from '../types/bundle-checker-types';
-
+import {
+  IBundleCheckerParams,
+  IBundleCheckerReport,
+  ITotalSize
+} from '../types/bundle-checker-types';
 const exec = util.promisify(childProcessExec);
-const { error, log } = console;
 
-export const getCurrentBranch = async (): Promise<string> => {
-  return (await exec(`git rev-parse --abbrev-ref HEAD`)).stdout.trim();
-};
+export default class BundleChecker {
+  private workDir = '';
+  private spinner = ora(`Bundle checker`);
+  private inputParams: IBundleCheckerParams;
 
-export default (bundleCheckerParams: IBundleCheckerParams) => {
-  const installDependencies = async (): Promise<undefined> => {
-    const { installScript } = bundleCheckerParams;
-    const spinner = ora(`Installing dependencies`);
-    spinner.start();
-    await exec(installScript);
-    spinner.succeed();
+  constructor(params: IBundleCheckerParams) {
+    this.inputParams = params; // TODO: perform default override of some params
+    this.workDir = this.generateWorkDirName();
+  }
 
-    return;
-  };
-
-  const getBundleSize = async (branch?: string): Promise<number> => {
-    const initialBranch = await getCurrentBranch();
-    const targetBranch = branch || initialBranch;
-    const spinner = ora(`${targetBranch}: Getting bundle size`);
-    const getTargetedFiles = async (): Promise<string[]> => {
-      const { buildScript, distPath, targetFilesPattern } = bundleCheckerParams;
-      spinner.start(`${targetBranch}: Running build script: ${buildScript}`);
-      await exec(buildScript);
-      spinner.succeed();
-
-      return globby(targetFilesPattern.map(item => path.resolve(distPath, item)) as ReadonlyArray<
-        string
-      >);
-    };
-
-    const isInitialBranchDirty = Boolean(await exec(`git status --porcelain`));
-    if (isInitialBranchDirty) {
-      spinner.start(`${initialBranch} is dirty - stashing changes`);
-      await exec(`git stash`);
-    }
-    await exec(`git checkout ${targetBranch}`);
-    await installDependencies();
-    const bundleSize = (await getSize(await getTargetedFiles())).parsed;
-
-    // Restore repository back to the original branch
-    await exec(`git reset --hard`);
-    await exec(`git clean -f`);
-    await exec(`git checkout ${initialBranch}`);
-    if (isInitialBranchDirty) {
-      try {
-        await exec(`git stash apply`);
-      } catch (e) {
-        log(e);
-      }
-    }
-
-    return bundleSize;
-  };
-
-  const generateBundleStats = async (): Promise<IBundleCheckerReport> => {
-    const bundleSize = await getBundleSize();
-    const prettyBundleSize = prettyPrint(bundleSize);
-    const prettyBundleLimit = prettyPrint(bundleCheckerParams.sizeLimit);
-    const sizeSurplus = bundleSize - bundleCheckerParams.sizeLimit;
-    const reportText =
-      sizeSurplus > 0
-        ? `WARN: Project is currently ${prettyBundleSize}, which is ${prettyPrint(
-            sizeSurplus
-          )} larger than the maximum allowed size (${prettyBundleLimit}).`
-        : `SUCCESS: Total bundle size of ${prettyBundleSize} is less than the maximum allowed size (${prettyBundleLimit})`;
-    return { reportText };
-  };
-
-  const compareBranches = async (...args: string[]): Promise<IBundleCheckerReport> => {
-    const spinner = ora(`Comparing bundles in the following branches: ${args.join(', ')}`);
-    let reportText = ``;
-
+  public async compare(): Promise<IBundleCheckerReport> {
+    await this.init();
+    const { githubRepo, currentBranch, targetBranch } = this.inputParams;
     try {
-      spinner.start();
-      for (const branch of args) {
-        const bundleSize = await getBundleSize(branch);
-        reportText += `
-          Bundle size (${branch}): ${prettyPrint(bundleSize)}
-        `;
-      }
-      spinner.succeed();
+      process.chdir(this.workDir);
+      const { stdout } = await exec(`pwd`);
+      console.log(`PWD: ${stdout}`);
+      await this.cloneRepo(githubRepo);
+      // --- CURRENT
+      this.spinner.indent = 4;
+      this.spinner.info(`Revision: ${currentBranch}`);
+      await this.buildBranch(currentBranch);
+      const currentSize = await this.getTotalSize();
+      // --- CLEAN
+      this.spinner.indent = 0;
+      await this.cleanDist();
+      // --- TARGET
+      this.spinner.indent = 4;
+      this.spinner.info(`Revision: ${targetBranch}`);
+      await this.buildBranch(targetBranch);
+      const targetSize = await this.getTotalSize();
+      return this.generateReport(`
+      Current: ${JSON.stringify(currentSize)},
+      Target:${JSON.stringify(targetSize)}
+      `);
     } catch (e) {
-      spinner.fail();
-      error(e);
-      reportText = e;
+      console.log(e);
+      console.log(JSON.stringify(e));
+      this.spinner.fail(e);
+      return this.generateReport(e);
     }
+  }
 
-    return {
-      reportText
-    };
+  private async init() {
+    // TODO: check if we have all the permissions
+    await this.makeFolder(this.workDir);
+  }
+
+  // private printResult(current: string, target: string) {
+  //   this.spinner.info(`Current: ${printBytes(current)}`);
+  //   this.spinner.info(`Target: ${printBytes(target)}`);
+  //   this.spinner.info(`Diff: ${printBytes(parseInt(current, 10) - parseInt(target, 10))}`);
+  // }
+
+  private generateWorkDirName = () => `/tmp/bundler-checker/${new Date().getTime()}`;
+  private makeFolder = async (dir: string) => exec(`mkdir -p ${dir}`);
+
+  private cloneRepo = async (githubRepo: string) => {
+    this.spinner.start(`Cloning ${githubRepo}`);
+    process.chdir(this.workDir);
+    await exec(`git clone ${githubRepo} .`);
+    this.spinner.succeed();
+  };
+  private async buildBranch(branch: string) {
+    this.spinner.start(`Checkout`);
+    await exec(`git checkout ${branch}`);
+    this.spinner.succeed().start(`Install`);
+    await exec(this.inputParams.installScript);
+    this.spinner.succeed().start(`Building`);
+    await exec(this.inputParams.buildScript);
+    this.spinner.succeed();
+  }
+  private async getTotalSize(): Promise<ITotalSize> {
+    this.spinner.start(`Calculate Size`);
+    process.chdir(path.resolve(this.workDir, this.inputParams.distPath));
+    const jsFiles = await this.getTargetedFiles(['**/*.js']);
+    // const cssFiles = await this.getTargetedFiles(['**/*.css']);
+    const jsSize = (await getSize(jsFiles)).parsed;
+    // const cssSize = (await getSize(cssFiles)).parsed;
+    this.spinner.succeed();
+    process.chdir(path.resolve(this.workDir));
+    return { css: 0, js: jsSize };
+  }
+  private getTargetedFiles = async (regex: string[]): Promise<string[]> =>
+    globby(regex.map(item => path.resolve(item)) as ReadonlyArray<string>);
+
+  private cleanDist = async () => {
+    this.spinner.start(`Cleaning dist`);
+    if (this.workDir === '/' || !this.workDir) {
+      return Promise.reject('WorkDir invalid.');
+    }
+    await exec(`rm -rf ${path.resolve(this.workDir, this.inputParams.distPath)}`);
+    this.spinner.succeed();
   };
 
-  return {
-    compareBranches,
-    generateBundleStats
-  };
-};
+  private generateReport = (input: any): IBundleCheckerReport => ({ reportText: input });
+
+  // private safeGetSize() {
+  //   // TODO: implemente getsize with size-limit with try{}catch{ return 0;}
+  // }
+}
