@@ -16,8 +16,8 @@ const dummyParams: IBundleCheckerParams = {
 describe('Bundle Checker', () => {
   jest.setTimeout(TEN_MINUTES);
   test(`Can get bundle size of two branches`, async done => {
-    const checker = await new BundleChecker(dummyParams);
-    const { reportText } = await checker.compare();
+    const checker = new BundleChecker(dummyParams);
+    const reportText = (await checker.compare()).reportText;
     expect(reportText).toContain('Current: ');
     done();
   });

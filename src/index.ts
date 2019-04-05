@@ -22,7 +22,7 @@ export default class BundleChecker {
     this.workDir = this.generateWorkDirName();
   }
 
-  public async compare(): Promise<IBundleCheckerReport | undefined> {
+  public async compare(): Promise<IBundleCheckerReport> {
     await this.init();
     const { githubRepo, currentBranch, targetBranch } = this.inputParams;
     try {
@@ -51,7 +51,7 @@ export default class BundleChecker {
       console.log(e);
       console.log(JSON.stringify(e));
       this.spinner.fail(e);
-      return undefined;
+      return this.generateReport(e);
     }
   }
 
