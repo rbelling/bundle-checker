@@ -8,7 +8,7 @@ import * as util from 'util';
 import { IBundleCheckerParams, IBundleCheckerReport } from '../types/bundle-checker-types';
 
 const exec = util.promisify(childProcessExec);
-const { error } = console;
+const { error, log } = console;
 
 export const getCurrentBranch = async (): Promise<string> => {
   return (await exec(`git rev-parse --abbrev-ref HEAD`)).stdout.trim();
@@ -54,7 +54,11 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
     await exec(`git clean -f`);
     await exec(`git checkout ${initialBranch}`);
     if (isInitialBranchDirty) {
-      await exec(`git stash apply`);
+      try {
+        await exec(`git stash apply`);
+      } catch (e) {
+        log(e);
+      }
     }
 
     return bundleSize;
