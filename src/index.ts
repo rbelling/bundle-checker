@@ -87,7 +87,7 @@ export default (bundleCheckerParams: IBundleCheckerParams) => {
       for (const branch of args) {
         const bundleSize = await getBundleSize(branch);
         reportText += `
-          Bundle size ${branch}: ${prettyPrint(bundleSize)}
+          Bundle size (${branch}): ${prettyPrint(bundleSize)}
         `;
       }
       spinner.succeed();
