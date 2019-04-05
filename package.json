@@ -20,7 +20,7 @@
   "homepage": "https://github.com/rbelling/bundle-checker#readme",
   "scripts": {
     "build": "rm -rf ./build/* && tsc -p ./tsconfig.prod.json",
-    "test": "jest ./src/__tests__/index.spec.ts",
+    "test": "jest",
     "lint": "tslint **/*.ts",
     "lint:fix": "yarn lint --fix"
   },
@@ -46,17 +46,19 @@
     "size-limit": "^1.0.0"
   },
   "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
     "transform": {
-      "^.+\\.ts?$": "ts-jest"
+      "^.+\\.tsx?$": "ts-jest"
     },
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/build"
-    ],
-    "testMatch": [
-      "<rootDir>/src/__tests__/**/*.spec.ts"
-    ],
-    "testEnvironment": "node"
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json",
+      "node"
+    ]
   },
   "husky": {
     "hooks": {
