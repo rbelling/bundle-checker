@@ -79,9 +79,9 @@ export default class BundleChecker {
     this.spinner.start(`Checkout`);
     await exec(`git checkout ${branch}`);
     this.spinner.succeed().start(`Install`);
-    await exec(`${this.inputParams.installScript}`);
+    await exec(this.inputParams.installScript);
     this.spinner.succeed().start(`Building`);
-    await exec(`${this.inputParams.buildScript}`);
+    await exec(this.inputParams.buildScript);
     this.spinner.succeed();
   }
   private async getTotalSize(): Promise<ITotalSize> {
