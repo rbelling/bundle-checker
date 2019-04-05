@@ -51,7 +51,7 @@ export default class BundleChecker {
       console.log(e);
       console.log(JSON.stringify(e));
       this.spinner.fail(e);
-      return this.generateReport(e);
+      return { reportText: '0' };
     }
   }
 
