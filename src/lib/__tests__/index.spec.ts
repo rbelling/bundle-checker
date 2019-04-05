@@ -1,5 +1,5 @@
 import BundleChecker from '..';
-import { IBundleCheckerParams } from '../../types/bundle-checker-types';
+import { IBundleCheckerParams } from '../../../types/bundle-checker-types';
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
