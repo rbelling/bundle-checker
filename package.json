@@ -22,7 +22,8 @@
     "build": "rm -rf ./build/* && tsc -p ./tsconfig.prod.json",
     "test": "jest",
     "lint": "tslint **/*.ts",
-    "lint:fix": "yarn lint --fix"
+    "lint:fix": "yarn lint --fix",
+    "start:dev": "yarn build && node ./build/index.js"
   },
   "devDependencies": {
     "@types/bytes": "^3.0.0",
