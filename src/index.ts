@@ -45,7 +45,7 @@ export default class BundleChecker {
       const targetSize = await this.getTotalSize();
       return this.generateReport(`
       Current: ${JSON.stringify(currentSize)},
-      Target:${JSON.stringify(targetSize)}
+      Target: ${JSON.stringify(targetSize)}
       `);
     } catch (e) {
       console.log(e);
