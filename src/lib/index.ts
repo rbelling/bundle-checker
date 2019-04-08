@@ -14,17 +14,18 @@ const exec = util.promisify(childProcessExec);
 
 export default class BundleChecker {
   private workDir = '';
+  private originalCwd = '';
   private spinner = ora(`Bundle checker`);
   private inputParams: IBundleCheckerParams;
 
   constructor(params: IBundleCheckerParams) {
     this.inputParams = params; // TODO: perform default override of some params
+    this.originalCwd = process.cwd();
   }
 
-  // Refactor this, it  is doing too much
+  // Refactor this, it is doing too much
   public async compare(): Promise<IBundleCheckerReport> {
     let result: IBundleCheckerReport;
-
     const { currentBranch, targetBranch } = this.inputParams;
     try {
       await this.init();
@@ -47,8 +48,6 @@ export default class BundleChecker {
         Current: ${JSON.stringify(currentSize)},
         Target:${JSON.stringify(targetSize)}`);
     } catch (e) {
-      console.log(e);
-      console.log(JSON.stringify(e));
       this.spinner.fail(e);
       result = { reportText: '0' };
     }
@@ -69,6 +68,7 @@ export default class BundleChecker {
 
   private async destroy() {
     if (this.inputParams.gitRepository) {
+      process.chdir(this.originalCwd);
       await this.safeDeleteFolder(path.resolve(this.workDir));
     }
   }
