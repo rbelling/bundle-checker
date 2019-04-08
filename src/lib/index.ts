@@ -85,6 +85,8 @@ export default class BundleChecker {
 
   private async buildBranch(branch: string) {
     this.spinner.start(`Checkout`);
+    await exec(`git reset --hard`);
+    await exec(`git clean -f`);
     await exec(`git checkout ${branch}`);
     this.spinner.succeed().start(`Install`);
     await exec(this.inputParams.installScript);
