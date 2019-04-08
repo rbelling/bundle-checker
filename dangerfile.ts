@@ -1,17 +1,17 @@
 import { exec as childProcessExec } from 'child_process';
 import { danger, markdown, message, warn } from 'danger';
 import * as util from 'util';
-import BundleChecker from './src/index';
+import BundleChecker from './src/lib/index';
 import { IBundleCheckerParams } from './types/bundle-checker-types';
 
 const exec = util.promisify(childProcessExec);
 
 (async () => {
-  const bundleCheckerParams: IBundleCheckerParams = await {
-    buildScript: 'yarn build',
-    currentBranch: (await exec(`git rev-parse --abbrev-ref HEAD`)).stdout.trim(),
-    distPath: 'build',
-    githubRepo: 'https://github.com/rbelling/bundle-checker.git',
+  const bundleCheckerParams: IBundleCheckerParams = {
+    buildScript: 'yarn build:es',
+    currentBranch: 'CrossEye-patch-1',
+    distPath: 'es',
+    githubRepo: 'https://github.com/ramda/ramda.git',
     installScript: 'yarn',
     targetBranch: 'master',
     targetFilesPattern: ['**/*.js']
