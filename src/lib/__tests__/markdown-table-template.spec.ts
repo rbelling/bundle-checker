@@ -1,14 +1,15 @@
-import { template as markdownTableTemplate } from '../markdown-table-template';
+import { IBundleCheckerReportRow } from '../../../types/bundle-checker-types';
+import generateReportTable from '../markdown-table-template';
 
 describe('generating markdown tables', () => {
   it('build a markdown table with the content given', () => {
-    const headers = ['', 'Warnings'];
+    const headers = ['git branch', 'file size'] as IBundleCheckerReportRow;
     const rows = [
-      ['⚠️', 'This is a very unimportant warning.'],
-      ['⚠️', 'But, this warning is pretty important.']
-    ];
+      ['master️', 'js: 356.6kB, css: 0'],
+      ['develop', 'js: 376.4kB, css: 0']
+    ] as IBundleCheckerReportRow[];
 
-    const table = markdownTableTemplate(headers, rows);
+    const table = generateReportTable([headers, ...rows]);
 
     expect(table).toMatchSnapshot();
   });
