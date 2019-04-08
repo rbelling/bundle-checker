@@ -22,3 +22,9 @@ $ npx bundle-checker compare \
         --distPath='dist' \
         --targetBranch='master'
 ```
+
+## Danger.js integration
+This repository uses Danger.JS to automate some checks in the CI environment (see `.travis.yml`), as well as posting a recap comment on the PR itself.
+Danger requires a github token `DANGER_GITHUB_API_TOKEN` to be setup in the travis settings for this repository.
+
+Please see this [danger.js setup guide](https://medium.com/@ivan.ha/integrate-danger-js-in-5-minutes-55515bc5355d) for more information.
