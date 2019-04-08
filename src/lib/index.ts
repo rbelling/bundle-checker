@@ -99,7 +99,7 @@ export default class BundleChecker {
     this.spinner.start(`Calculate Size`);
     const jsFiles = await this.getTargetedFiles([`${this.inputParams.distPath}/**/*.js`]);
     // const cssFiles = await this.getTargetedFiles(['**/*.css']);
-    const jsSize = (await getSize(jsFiles)).parsed;
+    const jsSize = (await getSize(jsFiles, { webpack: false })).parsed;
     // const cssSize = (await getSize(cssFiles)).parsed;
     this.spinner.succeed();
     return { css: 0, js: jsSize };

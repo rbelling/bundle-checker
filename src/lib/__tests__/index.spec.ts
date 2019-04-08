@@ -4,10 +4,10 @@ import { IBundleCheckerParams } from '../../../types/bundle-checker-types';
 const TEN_MINUTES = 10 * 60 * 1000;
 
 const dummyParams: IBundleCheckerParams = {
-  buildScript: 'yarn build:es',
-  currentBranch: 'CrossEye-patch-1',
-  distPath: 'es',
-  gitRepository: 'https://github.com/ramda/ramda.git',
+  buildScript: 'yarn build',
+  currentBranch: 'master',
+  distPath: 'build',
+  gitRepository: 'https://github.com/rbelling/bundle-checker.git',
   installScript: 'yarn',
   targetBranch: 'master',
   targetFilesPattern: ['**/*.js']
@@ -18,6 +18,6 @@ describe('Bundle Checker', () => {
   test(`Can get bundle size of two branches`, async () => {
     const checker = new BundleChecker(dummyParams);
     const result = await checker.compare();
-    expect(result.reportText).toContain('Current: {"css":0,"js":95362}');
+    expect(result.reportText).toContain('Current: {"css":0,"js":');
   });
 });
