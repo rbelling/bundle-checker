@@ -7,7 +7,7 @@ const dummyParams: IBundleCheckerParams = {
   buildScript: 'yarn build:es',
   currentBranch: 'CrossEye-patch-1',
   distPath: 'es',
-  githubRepo: 'https://github.com/ramda/ramda.git',
+  gitRepository: 'https://github.com/ramda/ramda.git',
   installScript: 'yarn',
   targetBranch: 'master',
   targetFilesPattern: ['**/*.js']

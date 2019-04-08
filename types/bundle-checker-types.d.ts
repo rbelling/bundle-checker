@@ -14,7 +14,7 @@ export interface IBundleCheckerParams {
   // An array of patterns that is used to target distribution files.
   targetFilesPattern: string[];
   // Github repo to clone and analyze
-  githubRepo: string;
+  gitRepository: string;
   currentBranch: string;
   targetBranch: string;
 }

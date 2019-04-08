@@ -1,15 +1,12 @@
 {
   "rulesDirectory": ["tslint-plugin-prettier"],
-  "extends": [
-    "tslint:latest",
-    "tslint-config-prettier",
-    "tslint-plugin-prettier"
-  ],
+  "extends": ["tslint:latest", "tslint-config-prettier", "tslint-plugin-prettier"],
   "linterOptions": {
     "exclude": ["example"]
   },
   "rules": {
     "no-console": false,
+    "curly": false,
     "prettier": [true, "./.prettierrc"]
   }
 }
