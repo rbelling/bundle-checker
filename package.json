@@ -97,8 +97,7 @@
     "lint:fix": "yarn lint --fix",
     "lint": "tslint **/*.ts",
     "postpack": "rm -f oclif.manifest.json",
-    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "start:dev": "yarn build && node ./build/index.js",
+    "prepack": "rm -rf ./build && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest"
   },
   "version": "1.0.0"
