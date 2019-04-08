@@ -101,5 +101,5 @@
     "prepack": "rm -rf ./build && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest"
   },
-  "version": "1.0.0"
+  "version": "0.1.0-beta.1"
 }
