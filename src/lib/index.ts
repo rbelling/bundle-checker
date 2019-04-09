@@ -1,8 +1,9 @@
-// import printBytes from 'bytes';
+import printBytes from 'bytes';
 import { exec as childProcessExec } from 'child_process';
 import globby from 'globby';
 import ora from 'ora';
 import * as path from 'path';
+import { zipObj } from 'ramda';
 import getSize from 'size-limit';
 import * as util from 'util';
 import {
@@ -11,7 +12,7 @@ import {
   IBundleCheckerReportRow,
   ITotalSize
 } from '../../types/bundle-checker-types';
-import generateReportTable from './markdown-table-template';
+import { createMarkdownTable, getTotalSizeRows, groupByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 
 export default class BundleChecker {
@@ -35,7 +36,7 @@ export default class BundleChecker {
       this.spinner.indent = 4;
       this.spinner.info(`Revision: ${currentBranch}`);
       await this.buildBranch(currentBranch);
-      const currentSize = await this.getTotalSize();
+      const currentSize: ITotalSize = await this.getTotalSize();
 
       // --- CLEAN
       this.spinner.indent = 0;
@@ -45,18 +46,17 @@ export default class BundleChecker {
       this.spinner.indent = 4;
       this.spinner.info(`Revision: ${targetBranch}`);
       await this.buildBranch(targetBranch);
-      const targetSize = await this.getTotalSize();
+      const targetSize: ITotalSize = await this.getTotalSize();
       reportRows = [
-        ['git branch', 'file size'],
-        [currentBranch, `${JSON.stringify(currentSize)}`],
-        [targetBranch, `${JSON.stringify(targetSize)}`]
+        ['file type', targetBranch, currentBranch],
+        ...getTotalSizeRows(targetSize, currentSize)
       ];
     } catch (e) {
       this.spinner.fail(e);
-      reportRows = [['Error', e]];
+      reportRows = [['Error', e, '']];
     }
     await this.destroy();
-    return generateReportTable(reportRows);
+    return createMarkdownTable(reportRows);
   }
 
   private async init() {
@@ -101,12 +101,23 @@ export default class BundleChecker {
 
   private async getTotalSize(): Promise<ITotalSize> {
     this.spinner.start(`Calculate Size`);
-    const jsFiles = await this.getTargetedFiles([`${this.inputParams.distPath}/**/*.js`]);
-    // const cssFiles = await this.getTargetedFiles(['**/*.css']);
-    const jsSize = (await getSize(jsFiles, { webpack: false })).parsed;
-    // const cssSize = (await getSize(cssFiles)).parsed;
+
+    const groupedFiles = groupByFileExtension(
+      await this.getTargetedFiles(
+        this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
+      )
+    );
+    const fileExtensions: string[] = Object.keys(groupedFiles);
+
+    const fileSizes: number[] = await Promise.all(
+      Object.values(groupedFiles).map(_ => getSize(_, { webpack: false }))
+      // Todo use parsed here
+    );
+    const recomposedObject: ITotalSize = zipObj(fileExtensions, fileSizes);
+    process.chdir(path.resolve(this.workDir));
+
     this.spinner.succeed();
-    return { css: 0, js: jsSize };
+    return recomposedObject;
   }
 
   private getTargetedFiles = async (regex: string[]): Promise<string[]> =>

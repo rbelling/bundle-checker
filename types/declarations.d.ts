@@ -3,5 +3,5 @@ declare module 'size-limit' {
     gzipped: number;
     parsed: number;
   }
-  export default function(files: string[]): Promise<ISizeLimitResponse>;
+  export default function(files: string[], options?: any): Promise<ISizeLimitResponse>;
 }
