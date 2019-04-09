@@ -112,7 +112,6 @@ export default class BundleChecker {
       Object.values(groupedFiles).map(_ => getSize(_, { webpack: false }))
     )).map(({ parsed }) => parsed);
     const recomposedObject = zipObj(fileExtensions, fileSizes);
-    process.chdir(path.resolve(this.workDir));
 
     this.spinner.succeed();
     return recomposedObject;
