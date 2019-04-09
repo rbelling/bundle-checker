@@ -9,10 +9,10 @@ import * as util from 'util';
 import {
   IBundleCheckerParams,
   IBundleCheckerReport,
-  IBundleCheckerReportRow,
-  ITotalSize
+  ITableReport,
+  ITableRow
 } from '../../types/bundle-checker-types';
-import { createMarkdownTable, getTotalSizeRows, groupByFileExtension } from './utils';
+import { createMarkdownTable, getRowsForTotalSizeReport, groupByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 
 export default class BundleChecker {
@@ -28,7 +28,7 @@ export default class BundleChecker {
 
   // Refactor this, it is doing too much
   public async compare(): Promise<IBundleCheckerReport> {
-    let reportRows: IBundleCheckerReportRow[];
+    let reportRows: ITableRow[];
     const { currentBranch, targetBranch } = this.inputParams;
     try {
       await this.init();
@@ -36,7 +36,7 @@ export default class BundleChecker {
       this.spinner.indent = 4;
       this.spinner.info(`Revision: ${currentBranch}`);
       await this.buildBranch(currentBranch);
-      const currentSize: ITotalSize = await this.getTotalSize();
+      const currentSize: ITableReport = await this.getTotalSize();
 
       // --- CLEAN
       this.spinner.indent = 0;
@@ -46,10 +46,10 @@ export default class BundleChecker {
       this.spinner.indent = 4;
       this.spinner.info(`Revision: ${targetBranch}`);
       await this.buildBranch(targetBranch);
-      const targetSize: ITotalSize = await this.getTotalSize();
+      const targetSize: ITableReport = await this.getTotalSize();
       reportRows = [
         ['file type', targetBranch, currentBranch],
-        ...getTotalSizeRows(targetSize, currentSize)
+        ...getRowsForTotalSizeReport(targetSize, currentSize)
       ];
     } catch (e) {
       this.spinner.fail(e);
@@ -99,7 +99,7 @@ export default class BundleChecker {
     this.spinner.succeed();
   }
 
-  private async getTotalSize(): Promise<ITotalSize> {
+  private async getTotalSize(): Promise<ITableReport> {
     this.spinner.start(`Calculate Size`);
 
     const groupedFiles = groupByFileExtension(
@@ -109,11 +109,10 @@ export default class BundleChecker {
     );
     const fileExtensions: string[] = Object.keys(groupedFiles);
 
-    const fileSizes: number[] = await Promise.all(
+    const fileSizes: number[] = (await Promise.all(
       Object.values(groupedFiles).map(_ => getSize(_, { webpack: false }))
-      // Todo use parsed here
-    );
-    const recomposedObject: ITotalSize = zipObj(fileExtensions, fileSizes);
+    )).map(({ parsed }) => parsed);
+    const recomposedObject: ITableReport = zipObj(fileExtensions, fileSizes);
     process.chdir(path.resolve(this.workDir));
 
     this.spinner.succeed();

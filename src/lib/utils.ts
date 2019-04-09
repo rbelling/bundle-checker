@@ -1,20 +1,13 @@
 import { groupBy } from 'ramda';
-import {
-  IBundleCheckerReport,
-  IBundleCheckerReportRow,
-  ITotalSize
-} from '../../types/bundle-checker-types';
+import { ITableReport, ITableRow } from '../../types/bundle-checker-types';
 
-export function createMarkdownTable([
-  headerRow,
-  ...contentRows
-]: IBundleCheckerReportRow[]): IBundleCheckerReport {
-  const buildHeader = (headers: string[]): string =>
+export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
+  const buildHeader = (headers: ITableRow): string =>
     `| ${headers.join(' | ')} |\n` + `| ${headers.map(_ => '---').join(' | ')} |`;
 
-  const buildRow = (row: string[]): string => `| ${row.join(' | ')} |`;
+  const buildRow = (row: ITableRow): string => `| ${row.join(' | ')} |`;
 
-  const buildRows = (rows: string[][]): string => rows.map(buildRow).join('\n');
+  const buildRows = (rows: ITableRow[]): string => rows.map(buildRow).join('\n');
 
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
@@ -24,4 +17,6 @@ export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: 
     return current.split('.').pop() || 'No extension';
   })(targetedFiles);
 
-export const getTotalSizeRows = (a: ITotalSize, b: ITotalSize): IBundleCheckerReportRow[] => [[]];
+export const getRowsForTotalSizeReport = (a: ITableReport, b: ITableReport): ITableRow[] => [
+  ['a', 'certain']
+];

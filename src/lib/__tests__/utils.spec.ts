@@ -1,15 +1,15 @@
-import { IBundleCheckerReportRow } from '../../../types/bundle-checker-types';
-import { groupByFileExtension, template } from '../utils';
+import { ITableReport, ITableRow } from '../../../types/bundle-checker-types';
+import { createMarkdownTable, getRowsForTotalSizeReport, groupByFileExtension } from '../utils';
 
 describe('generating markdown tables', () => {
   it('build a markdown table with the content given', () => {
-    const headers = ['git branch', 'file size'] as IBundleCheckerReportRow;
+    const headers = ['git branch', 'file size'] as ITableRow;
     const rows = [
       ['master️', 'js: 356.6kB, css: 0'],
       ['develop', 'js: 376.4kB, css: 0']
-    ] as IBundleCheckerReportRow[];
+    ] as ITableRow[];
 
-    const table = template([headers, ...rows]);
+    const table = createMarkdownTable([headers, ...rows]);
 
     expect(table).toMatchSnapshot();
   });

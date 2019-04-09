@@ -1,5 +1,3 @@
-export type IBundleCheckerReportRow = [string, string, string];
-
 export type IBundleCheckerReport = string;
 
 export interface IBundleCheckerParams {
@@ -19,6 +17,10 @@ export interface IBundleCheckerParams {
   targetBranch: string;
 }
 
-export interface ITotalSize {
+export interface ITableReport {
   [key: string]: number;
 }
+
+export type ITableCell = string | number;
+
+export type ITableRow = [ITableCell, ITableCell, ITableCell?];
