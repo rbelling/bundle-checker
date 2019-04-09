@@ -98,24 +98,34 @@ export default class BundleChecker {
   private async getTotalSize(): Promise<ITotalSize> {
     this.spinner.start(`Calculate Size`);
     const jsFiles = await this.getTargetedFiles([`${this.inputParams.distPath}/**/*.js`]);
-    // const cssFiles = await this.getTargetedFiles(['**/*.css']);
-    const jsSize = (await getSize(jsFiles, { webpack: false })).parsed;
-    // const cssSize = (await getSize(cssFiles)).parsed;
+    const cssFiles = await this.getTargetedFiles([`${this.inputParams.distPath}/**/*.css`]);
+    const jsSize = await this.safeGetSize(jsFiles);
+    const cssSize = await this.safeGetSize(cssFiles);
     this.spinner.succeed();
-    return { css: 0, js: jsSize };
+    return { css: cssSize, js: jsSize };
   }
 
-  private getTargetedFiles = async (regex: string[]): Promise<string[]> =>
-    globby(regex.map(item => path.resolve(item)) as ReadonlyArray<string>);
+  private async getTargetedFiles(regex: string[]): Promise<string[]> {
+    try {
+      return await globby(regex.map(item => path.resolve(item)));
+    } catch {
+      return [];
+    }
+  }
 
-  private cleanDist = async () => {
+  private async cleanDist() {
     this.spinner.start(`Cleaning dist`);
     await this.safeDeleteFolder(path.resolve(this.workDir, this.inputParams.distPath));
     this.spinner.succeed();
-  };
+  }
 
   private generateReport = (input: any): IBundleCheckerReport => ({ reportText: input });
-  // private safeGetSize() {
-  //   // TODO: implemente getsize with size-limit with try{}catch{ return 0;}
-  // }
+
+  private async safeGetSize(arrayOfFiles: string[]): Promise<number> {
+    try {
+      return (await getSize(arrayOfFiles, { webpack: false })).parsed;
+    } catch {
+      return 0;
+    }
+  }
 }
