@@ -1,5 +1,6 @@
 import { exec as childProcessExec } from 'child_process';
-import { danger, markdown, message, warn } from 'danger';
+// tslint:disable-next-line no-implicit-dependencies
+import { markdown } from 'danger';
 import * as util from 'util';
 import BundleChecker from './src/lib/index';
 import { IBundleCheckerParams } from './types/bundle-checker-types';
@@ -18,7 +19,7 @@ const exec = util.promisify(childProcessExec);
   };
 
   const checker = new BundleChecker(bundleCheckerParams);
-  const { reportText } = await checker.compare();
+  const reportText = await checker.compare();
 
-  message(`:tada: ${reportText}`);
+  markdown(reportText);
 })();

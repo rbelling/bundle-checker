@@ -6,7 +6,7 @@
     "downlevelIteration": true,
     "lib": ["esnext", "dom"],
     "module": "commonjs",
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "outDir": "build",
     "skipLibCheck": true,
     "strict": true,

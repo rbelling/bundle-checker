@@ -8,8 +8,10 @@ import * as util from 'util';
 import {
   IBundleCheckerParams,
   IBundleCheckerReport,
+  IBundleCheckerReportRow,
   ITotalSize
 } from '../../types/bundle-checker-types';
+import generateReportTable from './markdown-table-template';
 const exec = util.promisify(childProcessExec);
 
 export default class BundleChecker {
@@ -25,7 +27,7 @@ export default class BundleChecker {
 
   // Refactor this, it is doing too much
   public async compare(): Promise<IBundleCheckerReport> {
-    let result: IBundleCheckerReport;
+    let reportRows: IBundleCheckerReportRow[];
     const { currentBranch, targetBranch } = this.inputParams;
     try {
       await this.init();
@@ -44,15 +46,17 @@ export default class BundleChecker {
       this.spinner.info(`Revision: ${targetBranch}`);
       await this.buildBranch(targetBranch);
       const targetSize = await this.getTotalSize();
-      result = this.generateReport(`
-        Current: ${JSON.stringify(currentSize)},
-        Target:${JSON.stringify(targetSize)}`);
+      reportRows = [
+        ['git branch', 'file size'],
+        [currentBranch, `${JSON.stringify(currentSize)}`],
+        [targetBranch, `${JSON.stringify(targetSize)}`]
+      ];
     } catch (e) {
       this.spinner.fail(e);
-      result = { reportText: '0' };
+      reportRows = [['Error', e]];
     }
     await this.destroy();
-    return result;
+    return generateReportTable(reportRows);
   }
 
   private async init() {
@@ -114,7 +118,6 @@ export default class BundleChecker {
     this.spinner.succeed();
   };
 
-  private generateReport = (input: any): IBundleCheckerReport => ({ reportText: input });
   // private safeGetSize() {
   //   // TODO: implemente getsize with size-limit with try{}catch{ return 0;}
   // }
