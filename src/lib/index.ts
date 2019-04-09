@@ -108,25 +108,34 @@ export default class BundleChecker {
     );
     const fileExtensions: string[] = Object.keys(groupedFiles);
 
-    const fileSizes: number[] = (await Promise.all(
-      Object.values(groupedFiles).map(_ => getSize(_, { webpack: false }))
-    )).map(({ parsed }) => parsed);
+    const fileSizes: number[] = await Promise.all(
+      Object.values(groupedFiles).map(this.safeGetSize)
+    );
     const recomposedObject = zipObj(fileExtensions, fileSizes);
 
     this.spinner.succeed();
     return recomposedObject;
   }
 
-  private getTargetedFiles = async (regex: string[]): Promise<string[]> =>
-    globby(regex.map(item => path.resolve(item)) as ReadonlyArray<string>);
+  private async getTargetedFiles(regex: string[]): Promise<string[]> {
+    try {
+      return await globby(regex.map(item => path.resolve(item)));
+    } catch {
+      return [];
+    }
+  }
 
-  private cleanDist = async () => {
+  private async cleanDist() {
     this.spinner.start(`Cleaning dist`);
     await this.safeDeleteFolder(path.resolve(this.workDir, this.inputParams.distPath));
     this.spinner.succeed();
-  };
+  }
 
-  // private safeGetSize() {
-  //   // TODO: implemente getsize with size-limit with try{}catch{ return 0;}
-  // }
+  private async safeGetSize(arrayOfFiles: string[]): Promise<number> {
+    try {
+      return (await getSize(arrayOfFiles, { webpack: false })).parsed;
+    } catch {
+      return 0;
+    }
+  }
 }

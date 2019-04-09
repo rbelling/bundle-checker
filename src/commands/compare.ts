@@ -7,7 +7,7 @@ const exec = util.promisify(childProcessExec);
 
 export default class Compare extends Command {
   public static description = 'Compare JS/CSS bundles of two git branches.';
-  public static examples = [`$ npx bundle-checker compare --targetBranch='master`];
+  public static examples = [`$ npx bundle-checker compare`];
 
   public static flags = {
     buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
@@ -16,10 +16,11 @@ export default class Compare extends Command {
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
     installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
-    targetBranch: OclifFlags.string({ description: 'targetBranch', required: true }),
+    targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' }),
     targetFilesPattern: OclifFlags.string({
-      default: ['**/*.js', '**/*.css'],
-      description: 'targetFilesPattern'
+      default: '**/*.js,**/*.css',
+      description: 'targetFilesPattern',
+      required: true
     })
   };
   public async run() {
@@ -35,6 +36,6 @@ export default class Compare extends Command {
       const { stdout } = await exec('git rev-parse --abbrev-ref HEAD');
       defaults.currentBranch = stdout.trim();
     }
-    return { ...flags, ...defaults };
+    return { ...defaults, ...flags, targetFilesPattern: flags.targetFilesPattern.split(',') };
   }
 }
