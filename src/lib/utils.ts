@@ -2,6 +2,11 @@ import printBytes from 'bytes';
 import { groupBy } from 'ramda';
 import { ITableReport, ITableRow } from '../../types/bundle-checker-types';
 
+export function withDeltaSize(a: number = 0, b: number = 0): string {
+  const icon = a - b > 0 ? `▼` : `🔺`;
+  return `${printBytes(b)} (${icon} ${printBytes(Math.abs(a - b))})`;
+}
+
 export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
   const buildHeader = (headers: ITableRow): string =>
     `| ${headers.join(' | ')} |\n` + `| ${headers.map(_ => '---').join(' | ')} |`;
@@ -22,5 +27,5 @@ export const getRowsForTotalSizeReport = (a: ITableReport, b: ITableReport): ITa
   Object.keys({ ...a, ...b }).map(fileExtension => [
     fileExtension,
     printBytes(a[fileExtension] || 0),
-    printBytes(b[fileExtension] || 0)
+    withDeltaSize(a[fileExtension], b[fileExtension])
   ]);

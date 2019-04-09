@@ -1,5 +1,10 @@
 import { ITableReport, ITableRow } from '../../../types/bundle-checker-types';
-import { createMarkdownTable, getRowsForTotalSizeReport, groupByFileExtension } from '../utils';
+import {
+  createMarkdownTable,
+  getRowsForTotalSizeReport,
+  groupByFileExtension,
+  withDeltaSize
+} from '../utils';
 describe('generating markdown tables', () => {
   it('build a markdown table with the content given', () => {
     const headers = ['git branch', 'file size'] as ITableRow;
@@ -33,6 +38,11 @@ describe('generating markdown tables', () => {
     expect(groupByFileExtension(targetedFiles)).toMatchObject(expectedGrouping);
   });
 
+  it(`Prints the delta size with a triangle arrow`, () => {
+    expect(withDeltaSize(1024, 2048)).toBe(`2KB (🔺 1KB)`);
+    expect(withDeltaSize(2048, 512)).toBe(`512B (▼ 1.5KB)`);
+  });
+
   it('Creates rows for total size report in the expected format', () => {
     const targetBranchReport: ITableReport = {
       css: 150,
@@ -43,9 +53,9 @@ describe('generating markdown tables', () => {
       js: 1100
     };
     const expectedFormat: ITableRow[] = [
-      ['css', '150B', '0B'],
-      ['js', '1000B', '1.07KB'],
-      ['jpg', '0B', '1.95KB']
+      ['css', '150B', '0B (▼ 150B)'],
+      ['js', '1000B', '1.07KB (🔺 100B)'],
+      ['jpg', '0B', '1.95KB (🔺 1.95KB)']
     ];
 
     expect(getRowsForTotalSizeReport(targetBranchReport, currentBranchReport)).toEqual(
