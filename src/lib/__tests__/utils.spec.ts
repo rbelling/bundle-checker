@@ -33,4 +33,20 @@ describe('generating markdown tables', () => {
 
     expect(groupByFileExtension(targetedFiles)).toMatchObject(expectedGrouping);
   });
+
+  it('Creates rows for total size report in the expected format', () => {
+    const targetBranchReport: ITableReport = {
+      css: 150,
+      js: 1000
+    };
+    const currentBranchReport: ITableReport = {
+      jpg: 2000,
+      js: 1100
+    };
+    const expectedFormat: ITableRow[] = [['css', 150, 0], ['js', 1000, 1100], ['jpg', 0, 2000]];
+
+    expect(getRowsForTotalSizeReport(targetBranchReport, currentBranchReport)).toEqual(
+      expectedFormat
+    );
+  });
 });

@@ -17,6 +17,9 @@ export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: 
     return current.split('.').pop() || 'No extension';
   })(targetedFiles);
 
-export const getRowsForTotalSizeReport = (a: ITableReport, b: ITableReport): ITableRow[] => [
-  ['a', 'certain']
-];
+export const getRowsForTotalSizeReport = (a: ITableReport, b: ITableReport): ITableRow[] =>
+  Object.keys({ ...a, ...b }).map(fileExtension => [
+    fileExtension,
+    a[fileExtension] || 0,
+    b[fileExtension] || 0
+  ]);
