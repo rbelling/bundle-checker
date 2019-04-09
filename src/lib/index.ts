@@ -35,7 +35,7 @@ export default class BundleChecker {
       this.spinner.indent = 4;
       this.spinner.info(`Revision: ${currentBranch}`);
       await this.buildBranch(currentBranch);
-      const currentSize: ITableReport = await this.getTotalSize();
+      const currentSize = await this.getTotalSize();
 
       // --- CLEAN
       this.spinner.indent = 0;
@@ -45,7 +45,7 @@ export default class BundleChecker {
       this.spinner.indent = 4;
       this.spinner.info(`Revision: ${targetBranch}`);
       await this.buildBranch(targetBranch);
-      const targetSize: ITableReport = await this.getTotalSize();
+      const targetSize = await this.getTotalSize();
       reportRows = [
         ['file type', targetBranch, currentBranch],
         ...getRowsForTotalSizeReport(targetSize, currentSize)
@@ -111,7 +111,7 @@ export default class BundleChecker {
     const fileSizes: number[] = (await Promise.all(
       Object.values(groupedFiles).map(_ => getSize(_, { webpack: false }))
     )).map(({ parsed }) => parsed);
-    const recomposedObject: ITableReport = zipObj(fileExtensions, fileSizes);
+    const recomposedObject = zipObj(fileExtensions, fileSizes);
     process.chdir(path.resolve(this.workDir));
 
     this.spinner.succeed();
