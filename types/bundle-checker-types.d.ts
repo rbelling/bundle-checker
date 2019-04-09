@@ -1,4 +1,4 @@
-export type IBundleCheckerReportRow = [string, string];
+export type IBundleCheckerReportRow = [string, string, string];
 
 export type IBundleCheckerReport = string;
 
@@ -20,6 +20,5 @@ export interface IBundleCheckerParams {
 }
 
 export interface ITotalSize {
-  js: number;
-  css: number;
+  [key: string]: number;
 }
