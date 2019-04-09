@@ -1,38 +1,36 @@
 import { Command, flags as OclifFlags } from '@oclif/command';
+import { exec as childProcessExec } from 'child_process';
+import * as util from 'util';
 import BundleChecker from '../lib';
 
+const exec = util.promisify(childProcessExec);
+
 export default class Compare extends Command {
-  public static description = 'Bundle size diff two revisions from a git repo.';
-  public static examples = [
-    `$ npx bundle-checker compare \
-  --gitRepository='https://github.com/ramda/ramda.git' \
-  --installScript='yarn' \
-  --buildScript='yarn build:es' \
-  --currentBranch='CrossEye-patch-1' \
-  --distPath='dist' \
-  --targetBranch='master'`
-  ];
+  public static description = 'Compare JS/CSS bundles of two git branches.';
+  public static examples = [`$ npx bundle-checker compare --targetBranch='master`];
+
   public static flags = {
-    buildScript: OclifFlags.string({ description: 'buildScript' }),
-    currentBranch: OclifFlags.string({ description: 'currentBranch' }),
-    distPath: OclifFlags.string({ description: 'distPath' }),
-    gitRepository: OclifFlags.string({ description: 'gitRepository' }),
+    buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
+    currentBranch: OclifFlags.string({ description: '[default: branch detected] currentBranch' }),
+    distPath: OclifFlags.string({ description: 'distPath', default: 'dist' }),
+    gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
-    installScript: OclifFlags.string({ description: 'installScript' }),
-    targetBranch: OclifFlags.string({ description: 'targetBranch' })
+    installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
+    targetBranch: OclifFlags.string({ description: 'targetBranch', required: true })
   };
   public async run() {
     const { flags } = this.parse(Compare);
-    this.validateInput(flags);
-    const checker = new BundleChecker(flags as any);
+    const localFlags = await this.mergeFlagsWithDefaults(flags);
+    const checker = new BundleChecker(localFlags);
     const result = await checker.compare();
     console.log(result);
   }
-
-  private validateInput(flags: any) {
-    const required = ['targetBranch', 'currentBranch', 'distPath', 'installScript', 'buildScript'];
-    for (const key of required) {
-      if (!flags[key]) throw new Error(`Invalid Input: missing ${key}.`);
+  private async mergeFlagsWithDefaults(flags: any) {
+    const defaults = {} as any;
+    if (!flags.currentBranch) {
+      const { stdout } = await exec('git rev-parse --abbrev-ref HEAD');
+      defaults.currentBranch = stdout.trim();
     }
+    return { ...flags, ...defaults };
   }
 }
