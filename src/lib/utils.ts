@@ -1,3 +1,4 @@
+import printBytes from 'bytes';
 import { groupBy } from 'ramda';
 import { ITableReport, ITableRow } from '../../types/bundle-checker-types';
 
@@ -20,6 +21,6 @@ export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: 
 export const getRowsForTotalSizeReport = (a: ITableReport, b: ITableReport): ITableRow[] =>
   Object.keys({ ...a, ...b }).map(fileExtension => [
     fileExtension,
-    a[fileExtension] || 0,
-    b[fileExtension] || 0
+    printBytes(a[fileExtension] || 0),
+    printBytes(b[fileExtension] || 0)
   ]);

@@ -1,4 +1,3 @@
-import printBytes from 'bytes';
 import { exec as childProcessExec } from 'child_process';
 import globby from 'globby';
 import ora from 'ora';

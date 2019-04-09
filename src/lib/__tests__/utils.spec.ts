@@ -1,6 +1,5 @@
 import { ITableReport, ITableRow } from '../../../types/bundle-checker-types';
 import { createMarkdownTable, getRowsForTotalSizeReport, groupByFileExtension } from '../utils';
-
 describe('generating markdown tables', () => {
   it('build a markdown table with the content given', () => {
     const headers = ['git branch', 'file size'] as ITableRow;
@@ -43,7 +42,11 @@ describe('generating markdown tables', () => {
       jpg: 2000,
       js: 1100
     };
-    const expectedFormat: ITableRow[] = [['css', 150, 0], ['js', 1000, 1100], ['jpg', 0, 2000]];
+    const expectedFormat: ITableRow[] = [
+      ['css', '150B', '0B'],
+      ['js', '1000B', '1.07KB'],
+      ['jpg', '0B', '1.95KB']
+    ];
 
     expect(getRowsForTotalSizeReport(targetBranchReport, currentBranchReport)).toEqual(
       expectedFormat
