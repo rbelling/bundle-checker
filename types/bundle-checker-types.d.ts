@@ -1,6 +1,6 @@
-export interface IBundleCheckerReport {
-  reportText: string;
-}
+export type IBundleCheckerReportRow = [string, string];
+
+export type IBundleCheckerReport = string;
 
 export interface IBundleCheckerParams {
   // The build script that will be run as part of the bundle checker.

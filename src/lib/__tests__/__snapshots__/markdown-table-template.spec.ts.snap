@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generating markdown tables build a markdown table with the content given 1`] = `
+"| git branch | file size |
+| --- | --- |
+| master️ | js: 356.6kB, css: 0 |
+| develop | js: 376.4kB, css: 0 |"
+`;
