@@ -18,6 +18,6 @@ describe('Bundle Checker', () => {
   test(`Can get bundle size of two branches`, async () => {
     const checker = new BundleChecker(dummyParams);
     const result = await checker.compare();
-    expect(result).toContain('| CrossEye-patch-1 |');
+    expect(result).toContain('master | ');
   });
 });
