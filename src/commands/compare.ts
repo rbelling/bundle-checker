@@ -18,7 +18,7 @@ export default class Compare extends Command {
     installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
     targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' }),
     targetFilesPattern: OclifFlags.string({
-      default: '**/*.js',
+      default: '**/*.js,**/*.css',
       description: 'targetFilesPattern',
       required: true
     })
