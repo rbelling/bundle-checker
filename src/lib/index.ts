@@ -65,7 +65,7 @@ export default class BundleChecker {
       await exec(`mkdir -p ${this.workDir}`);
       process.chdir(this.workDir);
       const { stdout } = await exec(`pwd`);
-      console.log(`PWD: ${stdout}`);
+      this.spinner.info(`PWD: ${stdout.trim()}`);
       await this.cloneRepo(this.inputParams.gitRepository);
     }
   }
@@ -83,13 +83,14 @@ export default class BundleChecker {
 
   private async cloneRepo(gitRepository: string) {
     this.spinner.start(`Cloning ${gitRepository}`);
-    process.chdir(this.workDir);
     await exec(`git clone ${gitRepository} .`);
     this.spinner.succeed();
   }
 
   private async buildBranch(branch: string) {
     this.spinner.start(`Checkout`);
+    await exec(`git reset --hard`);
+    await exec(`git clean -f`);
     await exec(`git checkout ${branch}`);
     this.spinner.succeed().start(`Install`);
     await exec(this.inputParams.installScript);
@@ -100,13 +101,11 @@ export default class BundleChecker {
 
   private async getTotalSize(): Promise<ITotalSize> {
     this.spinner.start(`Calculate Size`);
-    process.chdir(path.resolve(this.workDir, this.inputParams.distPath));
-    const jsFiles = await this.getTargetedFiles(['**/*.js']);
+    const jsFiles = await this.getTargetedFiles([`${this.inputParams.distPath}/**/*.js`]);
     // const cssFiles = await this.getTargetedFiles(['**/*.css']);
-    const jsSize = (await getSize(jsFiles)).parsed;
+    const jsSize = (await getSize(jsFiles, { webpack: false })).parsed;
     // const cssSize = (await getSize(cssFiles)).parsed;
     this.spinner.succeed();
-    process.chdir(path.resolve(this.workDir));
     return { css: 0, js: jsSize };
   }
 
