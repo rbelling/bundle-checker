@@ -16,7 +16,11 @@ export default class Compare extends Command {
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
     installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
-    targetBranch: OclifFlags.string({ description: 'targetBranch', required: true })
+    targetBranch: OclifFlags.string({ description: 'targetBranch', required: true }),
+    targetFilesPattern: OclifFlags.string({
+      default: ['**/*.js', '**/*.css'],
+      description: 'targetFilesPattern'
+    })
   };
   public async run() {
     const { flags } = this.parse(Compare);

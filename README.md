@@ -20,7 +20,8 @@ $ npx bundle-checker compare \
         --buildScript='yarn build:es' \
         --currentBranch='CrossEye-patch-1' \
         --distPath='dist' \
-        --targetBranch='master'
+        --targetBranch='master' \
+        --targetFilesPattern='[\'**/*.js\', \'**/*.css\']'
 ```
 
 ## Danger.js integration
