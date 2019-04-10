@@ -2,7 +2,6 @@ import github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
 import { IBundleCheckerReport, IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
-const octokit = new github();
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
@@ -67,9 +66,7 @@ export async function commentOnPr(body: any) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
-    // TODO: Maybe ask for a specific GITHUB_TOKEN and OWNER in env vars for travis job.
-    console.log(GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG);
-    await octokit.authenticate({ type: 'token', token: GITHUB_TOKEN });
+    const octokit = new github({ auth: GITHUB_TOKEN });
     await octokit.issues.createComment({ owner, repo, number: TRAVIS_PULL_REQUEST, body });
   } catch (error) {
     console.error(error);
