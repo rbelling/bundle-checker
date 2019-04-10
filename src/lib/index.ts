@@ -8,10 +8,10 @@ import * as util from 'util';
 import {
   IBundleCheckerParams,
   IBundleCheckerReport,
-  ITableReport,
+  IFileSizeReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import { createMarkdownTable, getRowsForTotalSizeReport, groupByFileExtension } from './utils';
+import { createMarkdownTable, getFormattedRows, groupByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 
 export default class BundleChecker {
@@ -51,7 +51,7 @@ export default class BundleChecker {
       const targetSize = await this.getTotalSize();
       reportRows = [
         ['file type', targetBranch, currentBranch],
-        ...getRowsForTotalSizeReport(targetSize, currentSize)
+        ...getFormattedRows(targetSize, currentSize)
       ];
     } catch (e) {
       this.spinner.fail(e);
@@ -101,7 +101,7 @@ export default class BundleChecker {
     this.spinner.succeed();
   }
 
-  private async getTotalSize(): Promise<ITableReport> {
+  private async getTotalSize(): Promise<IFileSizeReport> {
     this.spinner.start(`Calculate Size`);
 
     const groupedFiles = groupByFileExtension(
@@ -114,10 +114,9 @@ export default class BundleChecker {
     const fileSizes: number[] = await Promise.all(
       Object.values(groupedFiles).map(this.safeGetSize)
     );
-    const recomposedObject = zipObj(fileExtensions, fileSizes);
 
     this.spinner.succeed();
-    return recomposedObject;
+    return zipObj(fileExtensions, fileSizes);
   }
 
   private async getTargetedFiles(regex: string[]): Promise<string[]> {
@@ -134,9 +133,10 @@ export default class BundleChecker {
     this.spinner.succeed();
   }
 
-  private async safeGetSize(arrayOfFiles: string[]): Promise<number> {
+  private async safeGetSize(files: string[] | string): Promise<number> {
     try {
-      return (await getSize(arrayOfFiles, { webpack: false })).parsed;
+      // Todo: add `gzip: false` in the options, since we're only intereseted in parsed size
+      return (await getSize(files, { webpack: false })).parsed;
     } catch {
       return 0;
     }

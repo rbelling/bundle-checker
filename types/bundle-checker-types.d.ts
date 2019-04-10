@@ -1,4 +1,7 @@
-export type IBundleCheckerReport = string;
+export interface IBundleCheckerReport {
+  currentBranch: IFileSizeReport;
+  targetBranch: IFileSizeReport;
+}
 
 export interface IBundleCheckerParams {
   // The build script that will be run as part of the bundle checker.
@@ -17,10 +20,10 @@ export interface IBundleCheckerParams {
   targetBranch: string;
 }
 
-export interface ITableReport {
+export interface IFileSizeReport {
   [key: string]: number;
 }
 
-export type ITableCell = string;
+export type ITableCell = string | number;
 
-export type ITableRow = [ITableCell, ITableCell, ITableCell?];
+export type ITableRow = [ITableCell, ITableCell, ITableCell];

@@ -1,17 +1,14 @@
-import { ITableReport, ITableRow } from '../../../types/bundle-checker-types';
+import { IFileSizeReport, ITableRow } from '../../../types/bundle-checker-types';
 import {
   createMarkdownTable,
-  getRowsForTotalSizeReport,
+  getFormattedRows,
   groupByFileExtension,
   withDeltaSize
 } from '../utils';
 describe('generating markdown tables', () => {
   it('build a markdown table with the content given', () => {
-    const headers = ['git branch', 'file size'] as ITableRow;
-    const rows = [
-      ['master️', 'js: 356.6kB, css: 0'],
-      ['develop', 'js: 376.4kB, css: 0']
-    ] as ITableRow[];
+    const headers = ['git branch', 'base branch', 'current branch'] as ITableRow;
+    const rows = [['file1.js', '356.6kB', '320KB'], ['file2.css', '320kB', '330KB']] as ITableRow[];
 
     const table = createMarkdownTable([headers, ...rows]);
 
@@ -44,22 +41,20 @@ describe('generating markdown tables', () => {
   });
 
   it('Creates rows for total size report in the expected format', () => {
-    const targetBranchReport: ITableReport = {
+    const targetBranchReport: IFileSizeReport = {
       css: 150,
       js: 1000
     };
-    const currentBranchReport: ITableReport = {
+    const currentBranchReport: IFileSizeReport = {
       jpg: 2000,
       js: 1100
     };
     const expectedFormat: ITableRow[] = [
-      ['.css', '150B', '0B (▼ -150B)'],
-      ['.jpg', '0B', '1.95KB (🔺 +1.95KB)'],
-      ['.js', '1000B', '1.07KB (🔺 +100B)']
+      ['css', '150B', '0B (▼ -150B)'],
+      ['jpg', '0B', '1.95KB (🔺 +1.95KB)'],
+      ['js', '1000B', '1.07KB (🔺 +100B)']
     ];
 
-    expect(getRowsForTotalSizeReport(targetBranchReport, currentBranchReport)).toEqual(
-      expectedFormat
-    );
+    expect(getFormattedRows(targetBranchReport, currentBranchReport)).toEqual(expectedFormat);
   });
 });
