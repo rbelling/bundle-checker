@@ -1,7 +1,5 @@
 sudo: required
 language: node_js
 node_js:
-  - '11'
-before_script:
-  - yarn danger ci
+  - "11"
 script: yarn lint && yarn test
