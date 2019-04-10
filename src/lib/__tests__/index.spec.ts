@@ -17,7 +17,7 @@ describe('Bundle Checker', () => {
   jest.setTimeout(TEN_MINUTES);
   test(`Can get bundle size of two branches`, async () => {
     const checker = new BundleChecker(dummyParams);
-    const result = await checker.compare();
+    const result = await checker.compareDeprecated();
     expect(result).toContain('master | ');
   });
 });

@@ -25,8 +25,11 @@ export default class BundleChecker {
     this.originalCwd = process.cwd();
   }
 
-  // Refactor this, it is doing too much
-  public async compare(): Promise<IBundleCheckerReport> {
+  /*
+   * Refactor this, it is doing too much
+   * @deprecated This will be deleted soon. Please use `compare` instead
+   */
+  public async compareDeprecated(): Promise<string> {
     let reportRows: ITableRow[];
     const { currentBranch, targetBranch } = this.inputParams;
     try {
