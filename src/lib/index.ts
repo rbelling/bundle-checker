@@ -33,42 +33,6 @@ export default class BundleChecker {
     this.originalCwd = process.cwd();
   }
 
-  /*
-   * Refactor this, it is doing too much
-   * @deprecated This will be deleted soon. Please use `compare` instead
-   */
-  public async compareDeprecated(): Promise<string> {
-    let reportRows: ITableRow[];
-    const { currentBranch, targetBranch } = this.inputParams;
-    try {
-      await this.init();
-      // --- CURRENT BRANCH
-      this.spinner.indent = 4;
-      this.spinner.info(`Revision: ${currentBranch}`);
-      await this.buildBranch(currentBranch);
-      const currentSize = await this.getTotalSize();
-
-      // --- CLEAN
-      this.spinner.indent = 0;
-      await this.cleanDist();
-
-      // --- TARGET BRANCH
-      this.spinner.indent = 4;
-      this.spinner.info(`Revision: ${targetBranch}`);
-      await this.buildBranch(targetBranch);
-      const targetSize = await this.getTotalSize();
-      reportRows = [
-        ['file type', targetBranch, currentBranch],
-        ...getFormattedRows({ targetBranchReport: targetSize, currentBranchReport: currentSize })
-      ];
-    } catch (e) {
-      this.spinner.fail(e);
-      reportRows = [['Error', e, '']];
-    }
-    await this.destroy();
-    return createMarkdownTable(reportRows);
-  }
-
   public async compareByFileExtension(): Promise<ITableRow[]> {
     const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
 
@@ -160,24 +124,6 @@ export default class BundleChecker {
     this.spinner.succeed().start(`Building`);
     await exec(this.inputParams.buildScript);
     this.spinner.succeed();
-  }
-
-  private async getTotalSize(): Promise<IFileSizeReport> {
-    this.spinner.start(`Calculate Size`);
-
-    const groupedFiles = groupFilesByExtension(
-      await this.getTargetedFiles(
-        this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
-      )
-    );
-    const fileExtensions: string[] = Object.keys(groupedFiles);
-
-    const fileSizes: number[] = await Promise.all(
-      Object.values(groupedFiles).map(this.safeGetSize)
-    );
-
-    this.spinner.succeed();
-    return zipObj(fileExtensions, fileSizes as ReadonlyArray<number>);
   }
 
   /**
