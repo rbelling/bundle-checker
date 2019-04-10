@@ -1,7 +1,14 @@
 sudo: required
 language: node_js
 node_js:
-  - '11'
-before_script:
-  - yarn danger ci
-script: yarn lint && yarn test
+  - "11"
+script:
+  - yarn
+  - yarn pack
+  - ./bin/run compare --prComment \
+    --gitRepository='https://github.com/ramda/ramda.git' \
+    --installScript='yarn' \
+    --buildScript='yarn build:es' \
+    --currentBranch='CrossEye-patch-1' \
+    --distPath='es' \
+    --targetBranch='master'
