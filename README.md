@@ -26,9 +26,17 @@ $ npx bundle-checker compare \
 
 ## Result posted as PR comment
 
+Add `--prComment` to post the results as pr Comment after a CI job.
+
 ```bash
 $ npx bundle-checker --prComment
 ```
 
-use `--prComment` to comment on the PR with the bundle check results.
-Travis already provied `TRAVIS_PULL_REQUEST`, `TRAVIS_PULL_REQUEST_SLUG`, you need to provide `GITHUB_TOKEN` as env variable.
+The command needs 3 env variable set:
+| var | Desc |
+| ------------- | ------------- |
+| _TRAVIS_PULL_REQUEST_ | Number of pull request |
+| _TRAVIS_PULL_REQUEST_SLUG_ | _nodejs/node_ |
+| _GITHUB_TOKEN_ | secret to be setup |
+
+> Travis will obviously provide `TRAVIS_PULL_REQUEST`, `TRAVIS_PULL_REQUEST_SLUG` for you already.
