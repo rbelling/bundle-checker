@@ -1,7 +1,7 @@
 import github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy } from 'ramda';
-import { IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
+import { IBundleCheckerReport, ITableRow } from '../../types/bundle-checker-types';
 const octokit = new github();
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
@@ -30,16 +30,15 @@ export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: 
   })(targetedFiles);
 
 export const getFormattedRows = (
-  targetBranchReport: IFileSizeReport,
-  currentBranchReport: IFileSizeReport,
+  report: IBundleCheckerReport,
   omitFromFilename: string = ''
 ): ITableRow[] =>
-  Object.keys({ ...targetBranchReport, ...currentBranchReport })
+  Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
     .map(fileName => [
       fileName,
-      printBytes(targetBranchReport[fileName] || 0),
-      withDeltaSize(targetBranchReport[fileName], currentBranchReport[fileName])
+      printBytes(report.targetBranchReport[fileName] || 0),
+      withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
     ])
     .map(([fileName, targetBranchSize, currentBranchSize]) => [
       fileName.replace(omitFromFilename, ''),

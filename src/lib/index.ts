@@ -52,7 +52,7 @@ export default class BundleChecker {
       const targetSize = await this.getTotalSize();
       reportRows = [
         ['file type', targetBranch, currentBranch],
-        ...getFormattedRows(targetSize, currentSize)
+        ...getFormattedRows({ targetBranchReport: targetSize, currentBranchReport: currentSize })
       ];
     } catch (e) {
       this.spinner.fail(e);
@@ -63,8 +63,8 @@ export default class BundleChecker {
   }
 
   public async compare(): Promise<ITableRow[]> {
-    const { currentBranch, targetBranch } = await this.compareEachFile();
-    return getFormattedRows(currentBranch, targetBranch, this.workDir);
+    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
+    return getFormattedRows({ targetBranchReport, currentBranchReport }, this.workDir);
   }
 
   public async commentOnPr(comment: any) {
@@ -73,8 +73,8 @@ export default class BundleChecker {
 
   private async compareEachFile(): Promise<IBundleCheckerReport> {
     let report: IBundleCheckerReport = {
-      currentBranch: {},
-      targetBranch: {}
+      currentBranchReport: {},
+      targetBranchReport: {}
     };
     const { currentBranch, targetBranch } = this.inputParams;
     try {
@@ -95,8 +95,8 @@ export default class BundleChecker {
       await this.buildBranch(targetBranch);
       const targetBranchFilesSizes = await this.getFilesSizes();
       report = {
-        currentBranch: currentBranchFilesSizes,
-        targetBranch: targetBranchFilesSizes
+        currentBranchReport: currentBranchFilesSizes,
+        targetBranchReport: targetBranchFilesSizes
       };
     } catch (e) {
       this.spinner.fail(e);

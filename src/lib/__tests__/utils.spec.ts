@@ -58,6 +58,6 @@ describe('generating markdown tables', () => {
       ['svg', '150B', '150B']
     ];
 
-    expect(getFormattedRows(targetBranchReport, currentBranchReport)).toEqual(expectedFormat);
+    expect(getFormattedRows({ targetBranchReport, currentBranchReport })).toEqual(expectedFormat);
   });
 });
