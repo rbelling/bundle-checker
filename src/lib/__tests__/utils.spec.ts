@@ -2,7 +2,8 @@ import { IFileSizeReport, ITableRow } from '../../../types/bundle-checker-types'
 import {
   createMarkdownTable,
   getFormattedRows,
-  groupByFileExtension,
+  groupFilesByExtension,
+  squashReportByFileExtension,
   withDeltaSize
 } from '../utils';
 describe('generating markdown tables', () => {
@@ -32,7 +33,7 @@ describe('generating markdown tables', () => {
       woff: ['font.woff', 'font-italic.123716.woff']
     };
 
-    expect(groupByFileExtension(targetedFiles)).toMatchObject(expectedGrouping);
+    expect(groupFilesByExtension(targetedFiles)).toMatchObject(expectedGrouping);
   });
 
   it(`Prints the delta size with a triangle arrow`, () => {
@@ -58,6 +59,23 @@ describe('generating markdown tables', () => {
       ['svg', '150B', '150B']
     ];
 
-    expect(getFormattedRows(targetBranchReport, currentBranchReport)).toEqual(expectedFormat);
+    expect(getFormattedRows({ targetBranchReport, currentBranchReport })).toEqual(expectedFormat);
+  });
+
+  describe('Squashes a File report by extension', () => {
+    const input: IFileSizeReport = {
+      'a.js': 1000,
+      'b.js': 2000,
+      'c.css': 1500,
+      'd.css': 3000,
+      'e.jpeg': 2000
+    };
+    const expectedOutput = {
+      css: 4500,
+      jpeg: 2000,
+      js: 3000
+    };
+
+    expect(squashReportByFileExtension(input)).toMatchObject(expectedOutput);
   });
 });

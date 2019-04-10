@@ -11,7 +11,14 @@ import {
   IFileSizeReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import { commentOnPr, createMarkdownTable, getFormattedRows, groupByFileExtension } from './utils';
+import {
+  commentOnPr,
+  createMarkdownTable,
+  getFileExtension,
+  getFormattedRows,
+  groupFilesByExtension,
+  squashReportByFileExtension
+} from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -26,45 +33,18 @@ export default class BundleChecker {
     this.originalCwd = process.cwd();
   }
 
-  /*
-   * Refactor this, it is doing too much
-   * @deprecated This will be deleted soon. Please use `compare` instead
-   */
-  public async compareDeprecated(): Promise<string> {
-    let reportRows: ITableRow[];
-    const { currentBranch, targetBranch } = this.inputParams;
-    try {
-      await this.init();
-      // --- CURRENT BRANCH
-      this.spinner.indent = 4;
-      this.spinner.info(`Revision: ${currentBranch}`);
-      await this.buildBranch(currentBranch);
-      const currentSize = await this.getTotalSize();
+  public async compareByFileExtension(): Promise<ITableRow[]> {
+    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
 
-      // --- CLEAN
-      this.spinner.indent = 0;
-      await this.cleanDist();
-
-      // --- TARGET BRANCH
-      this.spinner.indent = 4;
-      this.spinner.info(`Revision: ${targetBranch}`);
-      await this.buildBranch(targetBranch);
-      const targetSize = await this.getTotalSize();
-      reportRows = [
-        ['file type', targetBranch, currentBranch],
-        ...getFormattedRows(targetSize, currentSize)
-      ];
-    } catch (e) {
-      this.spinner.fail(e);
-      reportRows = [['Error', e, '']];
-    }
-    await this.destroy();
-    return createMarkdownTable(reportRows);
+    return getFormattedRows({
+      currentBranchReport: squashReportByFileExtension(currentBranchReport),
+      targetBranchReport: squashReportByFileExtension(targetBranchReport)
+    });
   }
 
   public async compare(): Promise<ITableRow[]> {
-    const { currentBranch, targetBranch } = await this.compareEachFile();
-    return getFormattedRows(currentBranch, targetBranch, this.workDir);
+    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
+    return getFormattedRows({ targetBranchReport, currentBranchReport }, this.workDir);
   }
 
   public async commentOnPr(comment: any) {
@@ -73,8 +53,8 @@ export default class BundleChecker {
 
   private async compareEachFile(): Promise<IBundleCheckerReport> {
     let report: IBundleCheckerReport = {
-      currentBranch: {},
-      targetBranch: {}
+      currentBranchReport: {},
+      targetBranchReport: {}
     };
     const { currentBranch, targetBranch } = this.inputParams;
     try {
@@ -95,8 +75,8 @@ export default class BundleChecker {
       await this.buildBranch(targetBranch);
       const targetBranchFilesSizes = await this.getFilesSizes();
       report = {
-        currentBranch: currentBranchFilesSizes,
-        targetBranch: targetBranchFilesSizes
+        currentBranchReport: currentBranchFilesSizes,
+        targetBranchReport: targetBranchFilesSizes
       };
     } catch (e) {
       this.spinner.fail(e);
@@ -144,24 +124,6 @@ export default class BundleChecker {
     this.spinner.succeed().start(`Building`);
     await exec(this.inputParams.buildScript);
     this.spinner.succeed();
-  }
-
-  private async getTotalSize(): Promise<IFileSizeReport> {
-    this.spinner.start(`Calculate Size`);
-
-    const groupedFiles = groupByFileExtension(
-      await this.getTargetedFiles(
-        this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
-      )
-    );
-    const fileExtensions: string[] = Object.keys(groupedFiles);
-
-    const fileSizes: number[] = await Promise.all(
-      Object.values(groupedFiles).map(this.safeGetSize)
-    );
-
-    this.spinner.succeed();
-    return zipObj(fileExtensions, fileSizes);
   }
 
   /**
