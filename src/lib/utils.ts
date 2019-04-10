@@ -1,6 +1,6 @@
 import printBytes from 'bytes';
 import { groupBy } from 'ramda';
-import { ITableReport, ITableRow } from '../../types/bundle-checker-types';
+import { IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺` : `▼`;
@@ -24,11 +24,14 @@ export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: 
     return current.split('.').pop() || 'No extension';
   })(targetedFiles);
 
-export const getRowsForTotalSizeReport = (a: ITableReport, b: ITableReport): ITableRow[] =>
-  Object.keys({ ...a, ...b })
+export const getFormattedRows = (
+  targetBranchReport: IFileSizeReport,
+  currentBranchReport: IFileSizeReport
+): ITableRow[] =>
+  Object.keys({ ...targetBranchReport, ...currentBranchReport })
     .sort()
-    .map(fileExtension => [
-      `.${fileExtension}`,
-      printBytes(a[fileExtension] || 0),
-      withDeltaSize(a[fileExtension], b[fileExtension])
+    .map(fileName => [
+      fileName,
+      printBytes(targetBranchReport[fileName] || 0),
+      withDeltaSize(targetBranchReport[fileName], currentBranchReport[fileName])
     ]);

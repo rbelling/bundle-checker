@@ -8,11 +8,12 @@ import * as util from 'util';
 import {
   IBundleCheckerParams,
   IBundleCheckerReport,
-  ITableReport,
+  IFileSizeReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import { createMarkdownTable, getRowsForTotalSizeReport, groupByFileExtension } from './utils';
+import { createMarkdownTable, getFormattedRows, groupByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
+const { error } = console;
 
 export default class BundleChecker {
   private workDir = '';
@@ -25,8 +26,11 @@ export default class BundleChecker {
     this.originalCwd = process.cwd();
   }
 
-  // Refactor this, it is doing too much
-  public async compare(): Promise<IBundleCheckerReport> {
+  /*
+   * Refactor this, it is doing too much
+   * @deprecated This will be deleted soon. Please use `compare` instead
+   */
+  public async compareDeprecated(): Promise<string> {
     let reportRows: ITableRow[];
     const { currentBranch, targetBranch } = this.inputParams;
     try {
@@ -48,7 +52,7 @@ export default class BundleChecker {
       const targetSize = await this.getTotalSize();
       reportRows = [
         ['file type', targetBranch, currentBranch],
-        ...getRowsForTotalSizeReport(targetSize, currentSize)
+        ...getFormattedRows(targetSize, currentSize)
       ];
     } catch (e) {
       this.spinner.fail(e);
@@ -56,6 +60,46 @@ export default class BundleChecker {
     }
     await this.destroy();
     return createMarkdownTable(reportRows);
+  }
+
+  public async compare(): Promise<ITableRow[]> {
+    const { currentBranch, targetBranch } = await this.compareEachFile();
+    return getFormattedRows(currentBranch, targetBranch);
+  }
+
+  private async compareEachFile(): Promise<IBundleCheckerReport> {
+    let report: IBundleCheckerReport = {
+      currentBranch: {},
+      targetBranch: {}
+    };
+    const { currentBranch, targetBranch } = this.inputParams;
+    try {
+      await this.init();
+      // --- CURRENT BRANCH
+      this.spinner.indent = 4;
+      this.spinner.info(`Branch: ${currentBranch}`);
+      await this.buildBranch(currentBranch);
+      const currentBranchFilesSizes = await this.getFilesSizes();
+
+      // --- CLEAN
+      this.spinner.indent = 0;
+      await this.cleanDist();
+
+      // --- TARGET BRANCH
+      this.spinner.indent = 4;
+      this.spinner.info(`Branch: ${targetBranch}`);
+      await this.buildBranch(targetBranch);
+      const targetBranchFilesSizes = await this.getFilesSizes();
+      report = {
+        currentBranch: currentBranchFilesSizes,
+        targetBranch: targetBranchFilesSizes
+      };
+    } catch (e) {
+      this.spinner.fail(e);
+      error(e);
+    }
+    await this.destroy();
+    return report;
   }
 
   private async init() {
@@ -98,7 +142,7 @@ export default class BundleChecker {
     this.spinner.succeed();
   }
 
-  private async getTotalSize(): Promise<ITableReport> {
+  private async getTotalSize(): Promise<IFileSizeReport> {
     this.spinner.start(`Calculate Size`);
 
     const groupedFiles = groupByFileExtension(
@@ -111,10 +155,29 @@ export default class BundleChecker {
     const fileSizes: number[] = await Promise.all(
       Object.values(groupedFiles).map(this.safeGetSize)
     );
-    const recomposedObject = zipObj(fileExtensions, fileSizes);
 
     this.spinner.succeed();
-    return recomposedObject;
+    return zipObj(fileExtensions, fileSizes);
+  }
+
+  /**
+   * Returns a list of each files (in a single branch) that are matched by IBundleCheckerParams.targetFilesPattern
+   */
+  private async getFilesSizes(): Promise<IFileSizeReport> {
+    this.spinner.start(
+      `Calculating sizes of files matching: \`${this.inputParams.targetFilesPattern}\``
+    );
+
+    const targetedFiles = await this.getTargetedFiles(
+      this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
+    );
+
+    const fileSizes: number[] = await Promise.all(
+      targetedFiles.map(file => this.safeGetSize([file]))
+    );
+
+    this.spinner.succeed();
+    return zipObj(targetedFiles, fileSizes);
   }
 
   private async getTargetedFiles(regex: string[]): Promise<string[]> {
@@ -131,9 +194,10 @@ export default class BundleChecker {
     this.spinner.succeed();
   }
 
-  private async safeGetSize(arrayOfFiles: string[]): Promise<number> {
+  private async safeGetSize(files: string[] | string): Promise<number> {
     try {
-      return (await getSize(arrayOfFiles, { webpack: false })).parsed;
+      // Todo: add `gzip: false` in the options, since we're only intereseted in parsed size
+      return (await getSize(files, { webpack: false })).parsed;
     } catch {
       return 0;
     }
