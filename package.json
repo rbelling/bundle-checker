@@ -10,13 +10,13 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^2",
+    "@octokit/rest": "16.23.4",
     "bytes": "^3.1.0",
     "globby": "^9.2.0",
     "ora": "^3.3.0",
     "ramda": "0.26.1",
     "size-limit": "^1.0.0",
-    "tslib": "^1",
-    "danger": "^7.1.0"
+    "tslib": "^1"
   },
   "description": "CLI tool that generates stats on bundle files",
   "devDependencies": {

@@ -1,8 +1,9 @@
 sudo: required
 language: node_js
 node_js:
-  - "11"
+  - '11'
 script:
+  - env
   - yarn
   - yarn pack
   - ./bin/run compare --prComment \

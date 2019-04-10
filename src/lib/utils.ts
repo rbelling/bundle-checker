@@ -1,6 +1,8 @@
+import github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy } from 'ramda';
 import { ITableReport, ITableRow } from '../../types/bundle-checker-types';
+const octokit = new github();
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺` : `▼`;
@@ -32,3 +34,15 @@ export const getRowsForTotalSizeReport = (a: ITableReport, b: ITableReport): ITa
       printBytes(a[fileExtension] || 0),
       withDeltaSize(a[fileExtension], b[fileExtension])
     ]);
+
+export async function commentOnPr(body: any) {
+  try {
+    const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
+    const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
+    // TODO: Maybe ask for a specific GITHUB_TOKEN and owner as Env Variable for travis
+    await octokit.authenticate({ type: 'token', token: GITHUB_TOKEN });
+    await octokit.issues.createComment({ owner, repo, number: TRAVIS_PULL_REQUEST, body });
+  } catch (error) {
+    console.error(error);
+  }
+}
