@@ -3,6 +3,7 @@ import { exec as childProcessExec } from 'child_process';
 import { markdown } from 'danger';
 import * as util from 'util';
 import BundleChecker from './src/lib/index';
+import { createMarkdownTable } from './src/lib/utils';
 import { IBundleCheckerParams } from './types/bundle-checker-types';
 
 const exec = util.promisify(childProcessExec);
@@ -19,7 +20,10 @@ const exec = util.promisify(childProcessExec);
   };
 
   const checker = new BundleChecker(bundleCheckerParams);
-  const reportText = await checker.compare();
+  const reportRows = createMarkdownTable([
+    ['File', bundleCheckerParams.targetBranch, bundleCheckerParams.currentBranch],
+    ...(await checker.compare())
+  ]);
 
-  markdown(reportText);
+  markdown(reportRows);
 })();

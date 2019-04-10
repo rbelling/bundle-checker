@@ -13,6 +13,7 @@ import {
 } from '../../types/bundle-checker-types';
 import { createMarkdownTable, getFormattedRows, groupByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
+const { error } = console;
 
 export default class BundleChecker {
   private workDir = '';
@@ -59,6 +60,46 @@ export default class BundleChecker {
     }
     await this.destroy();
     return createMarkdownTable(reportRows);
+  }
+
+  public async compare(): Promise<ITableRow[]> {
+    const { currentBranch, targetBranch } = await this.compareEachFile();
+    return getFormattedRows(currentBranch, targetBranch);
+  }
+
+  private async compareEachFile(): Promise<IBundleCheckerReport> {
+    let report: IBundleCheckerReport = {
+      currentBranch: {},
+      targetBranch: {}
+    };
+    const { currentBranch, targetBranch } = this.inputParams;
+    try {
+      await this.init();
+      // --- CURRENT BRANCH
+      this.spinner.indent = 4;
+      this.spinner.info(`Branch: ${currentBranch}`);
+      await this.buildBranch(currentBranch);
+      const currentBranchFilesSizes = await this.getFilesSizes();
+
+      // --- CLEAN
+      this.spinner.indent = 0;
+      await this.cleanDist();
+
+      // --- TARGET BRANCH
+      this.spinner.indent = 4;
+      this.spinner.info(`Branch: ${targetBranch}`);
+      await this.buildBranch(targetBranch);
+      const targetBranchFilesSizes = await this.getFilesSizes();
+      report = {
+        currentBranch: currentBranchFilesSizes,
+        targetBranch: targetBranchFilesSizes
+      };
+    } catch (e) {
+      this.spinner.fail(e);
+      error(e);
+    }
+    await this.destroy();
+    return report;
   }
 
   private async init() {
@@ -117,6 +158,26 @@ export default class BundleChecker {
 
     this.spinner.succeed();
     return zipObj(fileExtensions, fileSizes);
+  }
+
+  /**
+   * Returns a list of each files that are matched by IBundleCheckerParams.targetFilesPattern
+   */
+  private async getFilesSizes(): Promise<IFileSizeReport> {
+    this.spinner.start(
+      `Calculating sizes of files matching: \`${this.inputParams.targetFilesPattern}\``
+    );
+
+    const targetedFiles = await this.getTargetedFiles(
+      this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
+    );
+
+    const fileSizes: number[] = await Promise.all(
+      targetedFiles.map(file => this.safeGetSize([file]))
+    );
+
+    this.spinner.succeed();
+    return zipObj(targetedFiles, fileSizes);
   }
 
   private async getTargetedFiles(regex: string[]): Promise<string[]> {
