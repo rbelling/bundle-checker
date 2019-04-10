@@ -1,7 +1,7 @@
 import github from '@octokit/rest';
 import printBytes from 'bytes';
-import { groupBy } from 'ramda';
-import { IBundleCheckerReport, ITableRow } from '../../types/bundle-checker-types';
+import { groupBy, zipObj } from 'ramda';
+import { IBundleCheckerReport, IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
 const octokit = new github();
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
@@ -24,9 +24,11 @@ export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): s
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
 
-export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: string[] } =>
+export const getFileExtension = (fileName: string) => fileName.split('.').pop() || 'No extension';
+
+export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]: string[] } =>
   groupBy((current: string) => {
-    return current.split('.').pop() || 'No extension';
+    return getFileExtension(current);
   })(targetedFiles);
 
 export const getFormattedRows = (
@@ -45,6 +47,19 @@ export const getFormattedRows = (
       targetBranchSize,
       currentBranchSize
     ]);
+
+/*
+ * Given an IFileSizeReport, returns a new IFileSizeReport where entries are grouped by file extension
+ */
+export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeReport =>
+  zipObj(
+    Object.keys(groupFilesByExtension(Object.keys(report))) as ReadonlyArray<string>,
+    Object.keys(groupFilesByExtension(Object.keys(report))).map(fileExtension =>
+      Object.keys(report)
+        .filter(file => getFileExtension(file) === fileExtension)
+        .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
+    ) as ReadonlyArray<number>
+  );
 
 export async function commentOnPr(body: any) {
   try {

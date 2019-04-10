@@ -11,7 +11,14 @@ import {
   IFileSizeReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import { commentOnPr, createMarkdownTable, getFormattedRows, groupByFileExtension } from './utils';
+import {
+  commentOnPr,
+  createMarkdownTable,
+  getFileExtension,
+  getFormattedRows,
+  groupFilesByExtension,
+  squashReportByFileExtension
+} from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -60,6 +67,15 @@ export default class BundleChecker {
     }
     await this.destroy();
     return createMarkdownTable(reportRows);
+  }
+
+  public async compareByFileExtension(): Promise<ITableRow[]> {
+    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
+
+    return getFormattedRows({
+      currentBranchReport: squashReportByFileExtension(currentBranchReport),
+      targetBranchReport: squashReportByFileExtension(targetBranchReport)
+    });
   }
 
   public async compare(): Promise<ITableRow[]> {
@@ -149,7 +165,7 @@ export default class BundleChecker {
   private async getTotalSize(): Promise<IFileSizeReport> {
     this.spinner.start(`Calculate Size`);
 
-    const groupedFiles = groupByFileExtension(
+    const groupedFiles = groupFilesByExtension(
       await this.getTargetedFiles(
         this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
       )
@@ -161,7 +177,7 @@ export default class BundleChecker {
     );
 
     this.spinner.succeed();
-    return zipObj(fileExtensions, fileSizes);
+    return zipObj(fileExtensions, fileSizes as ReadonlyArray<number>);
   }
 
   /**
