@@ -3,9 +3,12 @@ import { groupBy } from 'ramda';
 import { IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
-  const icon = b - a > 0 ? `🔺` : `▼`;
-  const sign = b - a > 0 ? `+` : `-`;
-  return `${printBytes(b)} (${icon} ${sign}${printBytes(Math.abs(b - a))})`;
+  const icon = b - a > 0 ? `🔺 +` : `▼ -`;
+  if (b - a === 0) {
+    return printBytes(b);
+  } else {
+    return `${printBytes(b)} (${icon}${printBytes(Math.abs(b - a))})`;
+  }
 }
 
 export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
@@ -26,7 +29,8 @@ export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: 
 
 export const getFormattedRows = (
   targetBranchReport: IFileSizeReport,
-  currentBranchReport: IFileSizeReport
+  currentBranchReport: IFileSizeReport,
+  omitFromFilename: string = ''
 ): ITableRow[] =>
   Object.keys({ ...targetBranchReport, ...currentBranchReport })
     .sort()
@@ -34,4 +38,9 @@ export const getFormattedRows = (
       fileName,
       printBytes(targetBranchReport[fileName] || 0),
       withDeltaSize(targetBranchReport[fileName], currentBranchReport[fileName])
+    ])
+    .map(([fileName, targetBranchSize, currentBranchSize]) => [
+      fileName.replace(omitFromFilename, ''),
+      targetBranchSize,
+      currentBranchSize
     ]);

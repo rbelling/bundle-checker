@@ -43,16 +43,19 @@ describe('generating markdown tables', () => {
   it('Creates rows for total size report in the expected format', () => {
     const targetBranchReport: IFileSizeReport = {
       css: 150,
-      js: 1000
+      js: 1000,
+      svg: 150
     };
     const currentBranchReport: IFileSizeReport = {
       jpg: 2000,
-      js: 1100
+      js: 1100,
+      svg: 150
     };
     const expectedFormat: ITableRow[] = [
       ['css', '150B', '0B (▼ -150B)'],
       ['jpg', '0B', '1.95KB (🔺 +1.95KB)'],
-      ['js', '1000B', '1.07KB (🔺 +100B)']
+      ['js', '1000B', '1.07KB (🔺 +100B)'],
+      ['svg', '150B', '150B']
     ];
 
     expect(getFormattedRows(targetBranchReport, currentBranchReport)).toEqual(expectedFormat);

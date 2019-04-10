@@ -64,7 +64,7 @@ export default class BundleChecker {
 
   public async compare(): Promise<ITableRow[]> {
     const { currentBranch, targetBranch } = await this.compareEachFile();
-    return getFormattedRows(currentBranch, targetBranch);
+    return getFormattedRows(currentBranch, targetBranch, this.workDir);
   }
 
   private async compareEachFile(): Promise<IBundleCheckerReport> {
