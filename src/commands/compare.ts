@@ -16,6 +16,7 @@ export default class Compare extends Command {
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
     installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
+    prComment: OclifFlags.boolean({ description: 'Comment on PR', default: false }),
     targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' }),
     targetFilesPattern: OclifFlags.string({
       default: '**/*.js,**/*.css',
@@ -28,6 +29,7 @@ export default class Compare extends Command {
     const localFlags = await this.mergeFlagsWithDefaults(flags);
     const checker = new BundleChecker(localFlags);
     const result = await checker.compareDeprecated();
+    if (flags.prComment) await checker.commentOnPr(result);
     console.log(result);
   }
   private async mergeFlagsWithDefaults(flags: any) {
