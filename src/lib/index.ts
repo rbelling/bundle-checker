@@ -161,7 +161,7 @@ export default class BundleChecker {
   }
 
   /**
-   * Returns a list of each files that are matched by IBundleCheckerParams.targetFilesPattern
+   * Returns a list of each files (in a single branch) that are matched by IBundleCheckerParams.targetFilesPattern
    */
   private async getFilesSizes(): Promise<IFileSizeReport> {
     this.spinner.start(
