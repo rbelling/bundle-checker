@@ -5,7 +5,11 @@ import { IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺` : `▼`;
   const sign = b - a > 0 ? `+` : `-`;
-  return `${printBytes(b)} (${icon} ${sign}${printBytes(Math.abs(b - a))})`;
+  if (b - a === 0) {
+    return printBytes(b);
+  } else {
+    return `${printBytes(b)} (${icon} ${sign}${printBytes(Math.abs(b - a))})`;
+  }
 }
 
 export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
