@@ -1,6 +1,6 @@
 export interface IBundleCheckerReport {
-  currentBranch: IFileSizeReport;
-  targetBranch: IFileSizeReport;
+  currentBranchReport: IFileSizeReport;
+  targetBranchReport: IFileSizeReport;
 }
 
 export interface IBundleCheckerParams {

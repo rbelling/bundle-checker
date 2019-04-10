@@ -1,7 +1,7 @@
 import github from '@octokit/rest';
 import printBytes from 'bytes';
-import { groupBy } from 'ramda';
-import { IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
+import { groupBy, zipObj } from 'ramda';
+import { IBundleCheckerReport, IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
 const octokit = new github();
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
@@ -24,28 +24,44 @@ export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): s
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
 
-export const groupByFileExtension = (targetedFiles: string[]): { [key: string]: string[] } =>
+export const getFileExtension = (fileName: string) => fileName.split('.').pop() || 'No extension';
+
+export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]: string[] } =>
   groupBy((current: string) => {
-    return current.split('.').pop() || 'No extension';
+    return getFileExtension(current);
   })(targetedFiles);
 
 export const getFormattedRows = (
-  targetBranchReport: IFileSizeReport,
-  currentBranchReport: IFileSizeReport,
+  report: IBundleCheckerReport,
   omitFromFilename: string = ''
 ): ITableRow[] =>
-  Object.keys({ ...targetBranchReport, ...currentBranchReport })
+  Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
     .map(fileName => [
       fileName,
-      printBytes(targetBranchReport[fileName] || 0),
-      withDeltaSize(targetBranchReport[fileName], currentBranchReport[fileName])
+      printBytes(report.targetBranchReport[fileName] || 0),
+      withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
     ])
     .map(([fileName, targetBranchSize, currentBranchSize]) => [
       fileName.replace(omitFromFilename, ''),
       targetBranchSize,
       currentBranchSize
     ]);
+
+/*
+ * Given an IFileSizeReport, returns a new IFileSizeReport where entries are grouped by file extension
+ */
+export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeReport => {
+  const keysGroupedByExtension = Object.keys(
+    groupFilesByExtension(Object.keys(report))
+  ) as ReadonlyArray<string>;
+
+  return zipObj(keysGroupedByExtension, keysGroupedByExtension.map(fileExtension =>
+    Object.keys(report)
+      .filter(file => getFileExtension(file) === fileExtension)
+      .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
+  ) as ReadonlyArray<number>);
+};
 
 export async function commentOnPr(body: any) {
   try {

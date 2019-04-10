@@ -28,7 +28,7 @@ export default class Compare extends Command {
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
     const checker = new BundleChecker(localFlags);
-    const result = await checker.compareDeprecated();
+    const result = await checker.compareByFileExtension();
     if (flags.prComment) await checker.commentOnPr(result);
     console.log(result);
   }
