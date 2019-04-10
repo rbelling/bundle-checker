@@ -11,7 +11,7 @@ import {
   IFileSizeReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import { createMarkdownTable, getFormattedRows, groupByFileExtension } from './utils';
+import { commentOnPr, createMarkdownTable, getFormattedRows, groupByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -65,6 +65,10 @@ export default class BundleChecker {
   public async compare(): Promise<ITableRow[]> {
     const { currentBranch, targetBranch } = await this.compareEachFile();
     return getFormattedRows(currentBranch, targetBranch, this.workDir);
+  }
+
+  public async commentOnPr(comment: any) {
+    await commentOnPr(comment);
   }
 
   private async compareEachFile(): Promise<IBundleCheckerReport> {
