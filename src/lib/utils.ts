@@ -51,15 +51,17 @@ export const getFormattedRows = (
 /*
  * Given an IFileSizeReport, returns a new IFileSizeReport where entries are grouped by file extension
  */
-export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeReport =>
-  zipObj(
-    Object.keys(groupFilesByExtension(Object.keys(report))) as ReadonlyArray<string>,
-    Object.keys(groupFilesByExtension(Object.keys(report))).map(fileExtension =>
-      Object.keys(report)
-        .filter(file => getFileExtension(file) === fileExtension)
-        .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
-    ) as ReadonlyArray<number>
-  );
+export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeReport => {
+  const keysGroupedByExtension = Object.keys(
+    groupFilesByExtension(Object.keys(report))
+  ) as ReadonlyArray<string>;
+
+  return zipObj(keysGroupedByExtension, keysGroupedByExtension.map(fileExtension =>
+    Object.keys(report)
+      .filter(file => getFileExtension(file) === fileExtension)
+      .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
+  ) as ReadonlyArray<number>);
+};
 
 export async function commentOnPr(body: any) {
   try {
