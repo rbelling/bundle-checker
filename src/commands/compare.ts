@@ -2,6 +2,7 @@ import { Command, flags as OclifFlags } from '@oclif/command';
 import { exec as childProcessExec } from 'child_process';
 import * as util from 'util';
 import BundleChecker from '../lib';
+import { commentOnPr, printStdout } from '../lib/utils';
 
 const exec = util.promisify(childProcessExec);
 
@@ -27,10 +28,15 @@ export default class Compare extends Command {
   public async run() {
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
+    const { currentBranchName, targetBranchName } = localFlags;
     const checker = new BundleChecker(localFlags);
-    const result = await checker.compareEachFile();
-    if (flags.prComment) await checker.commentOnPr(result);
-    checker.printStdout(result);
+    const report = await checker.compareEachFile();
+    if (flags.prComment) await commentOnPr(report);
+    printStdout({
+      currentBranchName,
+      report,
+      targetBranchName
+    });
   }
   private async mergeFlagsWithDefaults(flags: any) {
     const defaults = {} as any;

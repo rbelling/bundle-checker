@@ -8,11 +8,8 @@ import * as util from 'util';
 import {
   IBundleCheckerParams,
   IBundleCheckerReport,
-  IConsoleTable,
-  IFileSizeReport,
-  ITableRow
+  IFileSizeReport
 } from '../../types/bundle-checker-types';
-import { commentOnPr, getFormattedRows, squashReportByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -25,17 +22,6 @@ export default class BundleChecker {
   constructor(params: IBundleCheckerParams) {
     this.inputParams = params;
     this.originalCwd = process.cwd();
-  }
-
-  public async commentOnPr(result: IBundleCheckerReport) {
-    await commentOnPr('TODO: implement');
-  }
-
-  public printStdout(result: IBundleCheckerReport) {
-    const totalTable = this.getConsoleTotalTable(result);
-    const filesBreakdownTable = this.getFilesBreakDownTable(result);
-    console.table(totalTable);
-    console.table(filesBreakdownTable);
   }
 
   public async compareEachFile(): Promise<IBundleCheckerReport> {
@@ -155,21 +141,4 @@ export default class BundleChecker {
       return 0;
     }
   }
-
-  private getConsoleTotalTable = (result: IBundleCheckerReport): IConsoleTable => {
-    const table = getFormattedRows({
-      currentBranchReport: squashReportByFileExtension(result.currentBranchReport),
-      targetBranchReport: squashReportByFileExtension(result.targetBranchReport)
-    });
-    return table.map(([ext, currentSize, targetSize]) => ({
-      Ext: `(${ext})`,
-      [this.inputParams.currentBranch]: currentSize,
-      [this.inputParams.targetBranch]: targetSize
-    }));
-  };
-
-  private getFilesBreakDownTable = (result: IBundleCheckerReport): any => {
-    const { currentBranch, targetBranch } = this.inputParams;
-    return [['File', currentBranch, targetBranch]];
-  };
 }

@@ -32,3 +32,9 @@ export interface IConsoleItem {
   [key: string]: string;
 }
 export type IConsoleTable = IConsoleItem[];
+
+export interface IPrintStdout {
+  report: IBundleCheckerReport;
+  targetBranchName: string;
+  currentBranchName: string;
+}

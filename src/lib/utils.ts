@@ -1,7 +1,13 @@
 import github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
-import { IBundleCheckerReport, IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
+import {
+  IBundleCheckerReport,
+  IConsoleTable,
+  IFileSizeReport,
+  IPrintStdout,
+  ITableRow
+} from '../../types/bundle-checker-types';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
@@ -62,7 +68,7 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function s(body: any) {
+export async function commentOnPr(body: any) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
@@ -72,3 +78,29 @@ export async function s(body: any) {
     console.error(error);
   }
 }
+export async function printStdout(args: IPrintStdout) {
+  const totalTable = getConsoleTotalTable(args);
+  const filesBreakdownTable = getFilesBreakDownTable(args);
+  console.table(totalTable);
+  console.table(filesBreakdownTable);
+}
+
+const getConsoleTotalTable = ({
+  report,
+  currentBranchName,
+  targetBranchName
+}: IPrintStdout): IConsoleTable => {
+  const table = getFormattedRows({
+    currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
+    targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
+  });
+  return table.map(([ext, currentSize, targetSize]) => ({
+    Ext: `(${ext})`,
+    [currentBranchName]: currentSize,
+    [targetBranchName]: targetSize
+  }));
+};
+
+const getFilesBreakDownTable = ({ currentBranchName, targetBranchName }: IPrintStdout): any => {
+  return [['File', currentBranchName, currentBranchName]];
+};
