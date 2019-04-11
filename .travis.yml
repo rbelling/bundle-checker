@@ -1,12 +1,14 @@
 sudo: required
 language: node_js
 node_js:
-  - "11"
+  - '11'
 script:
   - yarn lint
   - yarn test
   - yarn pack
-  - ./bin/run compare --prComment --gitRepository='https://github.com/rbelling/bundle-checker.git' --installScript='yarn' --buildScript='yarn build' --currentBranch=$TRAVIS_PULL_REQUEST_BRANCH --distPath='build' --targetBranch=$TRAVIS_BRANCH
+  - "./bin/run compare --prComment --gitRepository='https://github.com/rbelling/bundle-checker.git'
+    --installScript='yarn' --buildScript='yarn build' --currentBranch=$TRAVIS_PULL_REQUEST_BRANCH
+    --distPath='build' --targetBranch=$TRAVIS_BRANCH"
 deploy:
   provider: npm
   email: riccardo.bellingeri@gmail.com
