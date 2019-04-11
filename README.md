@@ -2,7 +2,7 @@
 
 # bundle-checker
 
-> CLI tool that generates stats on bundle files
+> Compare the size of build files in two git branches.
 
 ## Develop and test locally the CLI
 
