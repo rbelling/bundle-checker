@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/rbelling/bundle-checker.svg?branch=master)](https://travis-ci.org/rbelling/bundle-checker)
+[![Build Status](https://travis-ci.org/rbelling/bundle-checker.png)](https://travis-ci.org/rbelling/bundle-checker)
+[![NPM Version](https://img.shields.io/npm/v/bundle-checker.svg)](https://www.npmjs.com/package/bundle-checker)
 
 # bundle-checker
 
