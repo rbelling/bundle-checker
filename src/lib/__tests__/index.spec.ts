@@ -1,6 +1,7 @@
 import { add, pipe, reduce, values } from 'ramda';
 import BundleChecker from '..';
 import { IBundleCheckerParams, IBundleCheckerReport } from '../../../types/bundle-checker-types';
+import { getFormattedRows, squashReportByFileExtension } from '../utils';
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
@@ -25,10 +26,20 @@ describe('Bundle Checker', () => {
   });
 
   test(`Can get bundle size of two branches`, async () => {
-    expect(result).toEqual([
-      ['File extension', TEST_BRANCH, TEST_BRANCH],
-      ['js', '11.26KB', '11.26KB']
-    ]);
+    expect(result).toEqual({
+      currentBranchReport: {
+        '/build/commands/compare.js': 2550,
+        '/build/index.js': 149,
+        '/build/lib/index.js': 5796,
+        '/build/lib/utils.js': 3037
+      },
+      targetBranchReport: {
+        '/build/commands/compare.js': 2550,
+        '/build/index.js': 149,
+        '/build/lib/index.js': 5796,
+        '/build/lib/utils.js': 3037
+      }
+    });
   });
 
   test(`CurrentBranchReport has 4 entries`, async () => {

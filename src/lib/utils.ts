@@ -6,7 +6,6 @@ import {
   IConsoleTable,
   IFileSizeReport,
   IPrintStdout,
-  ITable,
   ITableRow
 } from '../../types/bundle-checker-types';
 
@@ -19,13 +18,13 @@ export function withDeltaSize(a: number = 0, b: number = 0): string {
   }
 }
 
-export function createMarkdownTable([headerRow, ...contentRows]: ITable): string {
+export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
   const buildHeader = (headers: ITableRow): string =>
     `| ${headers.join(' | ')} |\n` + `| ${headers.map(_ => '---').join(' | ')} |`;
 
   const buildRow = (row: ITableRow): string => `| ${row.join(' | ')} |`;
 
-  const buildRows = (rows: ITable): string => rows.map(buildRow).join('\n');
+  const buildRows = (rows: ITableRow[]): string => rows.map(buildRow).join('\n');
 
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
@@ -61,7 +60,7 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr(table: ITable) {
+export async function commentOnPr(table: ITableRow[]) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
