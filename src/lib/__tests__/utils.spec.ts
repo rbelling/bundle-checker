@@ -53,10 +53,9 @@ describe('generating markdown tables', () => {
       svg: 150
     };
     const expectedFormat: ITableRow[] = [
-      ['css', '150B', '0B (▼ -150B)'],
-      ['jpg', '0B', '1.95KB (🔺 +1.95KB)'],
-      ['js', '1000B', '1.07KB (🔺 +100B)'],
-      ['svg', '150B', '150B']
+      ['jpg', '1.95KB (🔺 +1.95KB)', '0B'],
+      ['js', '1.07KB (🔺 +100B)', '1000B'],
+      ['css', '0B (▼ -150B)', '150B']
     ];
 
     expect(getFormattedRows({ targetBranchReport, currentBranchReport })).toEqual(expectedFormat);
