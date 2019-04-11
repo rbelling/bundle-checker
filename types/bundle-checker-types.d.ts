@@ -37,5 +37,4 @@ export interface IPrintStdout {
   report: IBundleCheckerReport;
   targetBranchName: string;
   currentBranchName: string;
-  distPath: string;
 }

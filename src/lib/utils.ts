@@ -1,4 +1,4 @@
-import github from '@octokit/rest';
+import Github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
 import {
@@ -36,10 +36,7 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
     return getFileExtension(current);
   })(targetedFiles);
 
-export const getFormattedRows = (
-  report: IBundleCheckerReport,
-  stampFromMatch: string = ''
-): ITableRow[] =>
+export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .map(fileName => [
       fileName,
@@ -49,7 +46,7 @@ export const getFormattedRows = (
     .sort(sortByDelta)
     .filter(filterDelta)
     .map(([fileName, currentBranchSize, targetBranchSize]: any) => [
-      fileName.slice((fileName.match(stampFromMatch) || ({} as any)).index),
+      fileName,
       withDeltaSize(targetBranchSize, currentBranchSize),
       printBytes(targetBranchSize)
     ]);
@@ -69,12 +66,17 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr(body: any) {
+export async function commentOnPr(table: ITableRow[]) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
-    const octokit = new github({ auth: GITHUB_TOKEN });
-    await octokit.issues.createComment({ owner, repo, number: TRAVIS_PULL_REQUEST, body });
+    const octokit = new Github({ auth: GITHUB_TOKEN });
+    await octokit.issues.createComment({
+      body: createMarkdownTable(table),
+      number: TRAVIS_PULL_REQUEST,
+      owner,
+      repo
+    });
   } catch (error) {
     console.error(error);
   }
@@ -107,10 +109,9 @@ const getConsoleTotalTable = ({
 const getFilesBreakDownTable = ({
   currentBranchName,
   targetBranchName,
-  report,
-  distPath
+  report
 }: IPrintStdout): any =>
-  getFormattedRows(report, distPath).map(([fileName, currentSize, targetSize]) => ({
+  getFormattedRows(report).map(([fileName, currentSize, targetSize]) => ({
     File: fileName,
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
