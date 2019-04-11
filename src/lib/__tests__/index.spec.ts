@@ -4,13 +4,14 @@ import { IBundleCheckerParams, IBundleCheckerReport } from '../../../types/bundl
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
+const TEST_BRANCH = 'TEST_BRANCH_DO_NOT_DELETE';
 const dummyParams: IBundleCheckerParams = {
   buildScript: 'yarn build',
-  currentBranch: 'TEST_BRANCH_DO_NOT_DELETE',
+  currentBranch: TEST_BRANCH,
   distPath: 'build',
   gitRepository: 'https://github.com/rbelling/bundle-checker.git',
   installScript: 'yarn',
-  targetBranch: 'TEST_BRANCH_DO_NOT_DELETE',
+  targetBranch: TEST_BRANCH,
   targetFilesPattern: ['**/*.js']
 };
 
@@ -24,7 +25,10 @@ describe('Bundle Checker', () => {
   });
 
   test(`Can get bundle size of two branches`, async () => {
-    expect(result).not.toBe(undefined);
+    expect(result).toEqual([
+      ['File extension', TEST_BRANCH, TEST_BRANCH],
+      ['js', '11.26KB', '11.26KB']
+    ]);
   });
 
   test(`CurrentBranchReport has 4 entries`, async () => {
