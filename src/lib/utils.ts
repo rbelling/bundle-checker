@@ -38,7 +38,7 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
 
 export const getFormattedRows = (
   report: IBundleCheckerReport,
-  omitFromFilename: string = ''
+  stampFromMatch: string = ''
 ): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
@@ -48,7 +48,7 @@ export const getFormattedRows = (
       withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
     ])
     .map(([fileName, targetBranchSize, currentBranchSize]) => [
-      fileName.replace(omitFromFilename, ''),
+      fileName.slice((fileName.match(stampFromMatch) || ({} as any)).index),
       targetBranchSize,
       currentBranchSize
     ]);
@@ -97,7 +97,7 @@ const getConsoleTotalTable = ({
     targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
   });
   return table.map(([ext, currentSize, targetSize]) => ({
-    Ext: `(${ext})`,
+    Ext: ext,
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
@@ -105,11 +105,12 @@ const getConsoleTotalTable = ({
 
 const getFilesBreakDownTable = ({
   currentBranchName,
-  targetBranchName
-}: IPrintStdout): IConsoleTable => [
-  {
-    File: 'TODO:',
-    [currentBranchName]: 'currentBranchName',
-    [targetBranchName]: 'currentBranchName'
-  }
-];
+  targetBranchName,
+  report,
+  distPath
+}: IPrintStdout): any =>
+  getFormattedRows(report, distPath).map(([fileName, currentSize, targetSize]) => ({
+    File: fileName,
+    [currentBranchName]: currentSize,
+    [targetBranchName]: targetSize
+  }));

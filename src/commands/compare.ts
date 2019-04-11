@@ -29,12 +29,13 @@ export default class Compare extends Command {
   public async run() {
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
-    const { currentBranch, targetBranch } = localFlags;
+    const { currentBranch, targetBranch, distPath } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
     if (flags.prComment) await commentOnPr(report);
     printStdout({
       currentBranchName: currentBranch,
+      distPath,
       report,
       targetBranchName: targetBranch
     });
