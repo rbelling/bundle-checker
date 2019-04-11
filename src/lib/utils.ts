@@ -41,16 +41,17 @@ export const getFormattedRows = (
   stampFromMatch: string = ''
 ): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
-    .sort()
     .map(fileName => [
       fileName,
-      printBytes(report.targetBranchReport[fileName] || 0),
-      withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
+      (report.currentBranchReport[fileName] || 0) as number,
+      (report.targetBranchReport[fileName] || 0) as number
     ])
-    .map(([fileName, targetBranchSize, currentBranchSize]) => [
+    .sort(sortByDelta)
+    .filter(filterDelta)
+    .map(([fileName, currentBranchSize, targetBranchSize]: any) => [
       fileName.slice((fileName.match(stampFromMatch) || ({} as any)).index),
-      targetBranchSize,
-      currentBranchSize
+      withDeltaSize(targetBranchSize, currentBranchSize),
+      printBytes(targetBranchSize)
     ]);
 
 /*
@@ -114,3 +115,18 @@ const getFilesBreakDownTable = ({
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
+
+// TODO: fix types, and make them more robust
+const sortByDelta = (a: Array<string | number>, b: Array<string | number>) => {
+  const bDelta = (b[1] as number) - (b[2] as number);
+  const aDelta = (a[1] as number) - (a[2] as number);
+  if (bDelta - aDelta > 0) return 1;
+  if (bDelta - aDelta < 0) return -1;
+  return 0;
+};
+
+const filterDelta = (itemRow: Array<string | number>) => {
+  const delta = (itemRow[1] as number) - (itemRow[2] as number);
+  if (delta === 0) return false;
+  return true;
+};
