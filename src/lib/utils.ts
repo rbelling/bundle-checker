@@ -1,4 +1,4 @@
-import github from '@octokit/rest';
+import Github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
 import {
@@ -68,11 +68,11 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr(body: any) {
+export async function commentOnPr(body: string) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
-    const octokit = new github({ auth: GITHUB_TOKEN });
+    const octokit = new Github({ auth: GITHUB_TOKEN });
     await octokit.issues.createComment({ owner, repo, number: TRAVIS_PULL_REQUEST, body });
   } catch (error) {
     console.error(error);

@@ -2,7 +2,7 @@ import { Command, flags as OclifFlags } from '@oclif/command';
 import { exec as childProcessExec } from 'child_process';
 import * as util from 'util';
 import BundleChecker from '../lib';
-import { commentOnPr, printStdout } from '../lib/utils';
+import { commentOnPr, createMarkdownTable, printStdout } from '../lib/utils';
 
 const exec = util.promisify(childProcessExec);
 
@@ -32,8 +32,8 @@ export default class Compare extends Command {
     const { currentBranch, targetBranch } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
-    if (flags.prComment) await commentOnPr(report);
-    printStdout({
+    if (flags.prComment) await commentOnPr(createMarkdownTable(report));
+    await printStdout({
       currentBranchName: currentBranch,
       report,
       targetBranchName: targetBranch

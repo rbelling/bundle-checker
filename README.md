@@ -16,13 +16,13 @@ $ ./bin/run hello
 
 ```bash
 $ npx bundle-checker compare \
-        --gitRepository=https://github.com/ramda/ramda.git \
-        --installScript=yarn \
-        --buildScript=yarn build:es \
-        --currentBranch=CrossEye-patch-1 \
-        --distPath=dist \
-        --targetBranch=master \
-        --targetFilesPattern=**/*.js,**/*.css
+        --gitRepository='https://github.com/ramda/ramda.git' \
+        --installScript='yarn' \
+        --buildScript='yarn build:es' \
+        --currentBranch='CrossEye-patch-1' \
+        --distPath='dist' \
+        --targetBranch='master' \
+        --targetFilesPattern='**/*.js,**/*.css'
 ```
 
 ## Result posted as PR comment
