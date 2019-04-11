@@ -20,7 +20,7 @@ describe('Bundle Checker', () => {
   let result: IBundleCheckerReport;
   beforeAll(async () => {
     const checker = new BundleChecker(dummyParams);
-    result = await checker.compareEachFile();
+    result = await checker.compare();
   });
 
   test(`Can get bundle size of two branches`, async () => {

@@ -81,7 +81,9 @@ export async function commentOnPr(body: any) {
 export async function printStdout(args: IPrintStdout) {
   const totalTable = getConsoleTotalTable(args);
   const filesBreakdownTable = getFilesBreakDownTable(args);
+  console.log('TOTALS');
   console.table(totalTable);
+  console.log('FILE BREAKDOWN');
   console.table(filesBreakdownTable);
 }
 

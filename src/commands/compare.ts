@@ -10,6 +10,7 @@ export default class Compare extends Command {
   public static description = 'Compare the size of build files in two git branches.';
   public static examples = [`$ npx bundle-checker compare`];
 
+  // TODO: Define interface for this.
   public static flags = {
     buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
     currentBranch: OclifFlags.string({ description: '[default: branch detected] currentBranch' }),
@@ -28,14 +29,14 @@ export default class Compare extends Command {
   public async run() {
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
-    const { currentBranchName, targetBranchName } = localFlags;
+    const { currentBranch, targetBranch } = localFlags;
     const checker = new BundleChecker(localFlags);
-    const report = await checker.compareEachFile();
+    const report = await checker.compare();
     if (flags.prComment) await commentOnPr(report);
     printStdout({
-      currentBranchName,
+      currentBranchName: currentBranch,
       report,
-      targetBranchName
+      targetBranchName: targetBranch
     });
   }
   private async mergeFlagsWithDefaults(flags: any) {

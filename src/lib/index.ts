@@ -24,7 +24,7 @@ export default class BundleChecker {
     this.originalCwd = process.cwd();
   }
 
-  public async compareEachFile(): Promise<IBundleCheckerReport> {
+  public async compare(): Promise<IBundleCheckerReport> {
     let report: IBundleCheckerReport = {
       currentBranchReport: {},
       targetBranchReport: {}
