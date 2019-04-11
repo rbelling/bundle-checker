@@ -116,7 +116,10 @@ export default class BundleChecker {
     );
 
     this.spinner.succeed();
-    return zipObj(targetedFiles, fileSizes);
+    return zipObj(
+      targetedFiles.map(file => file.replace(this.workDir, '')) as ReadonlyArray<string>,
+      fileSizes
+    );
   }
 
   private async getTargetedFiles(regex: string[]): Promise<string[]> {

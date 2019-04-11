@@ -32,7 +32,7 @@ export default class Compare extends Command {
     const { currentBranch, targetBranch } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
-    if (flags.prComment) await commentOnPr(createMarkdownTable(report));
+    if (flags.prComment) await commentOnPr(report);
     await printStdout({
       currentBranchName: currentBranch,
       report,

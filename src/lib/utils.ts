@@ -37,21 +37,13 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
     return getFileExtension(current);
   })(targetedFiles);
 
-export const getFormattedRows = (
-  report: IBundleCheckerReport,
-  omitFromFilename: string = ''
-): ITable =>
+export const getFormattedRows = (report: IBundleCheckerReport): ITable =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
     .map(fileName => [
       fileName,
       printBytes(report.targetBranchReport[fileName] || 0),
       withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
-    ])
-    .map(([fileName, targetBranchSize, currentBranchSize]) => [
-      fileName.replace(omitFromFilename, ''),
-      targetBranchSize,
-      currentBranchSize
     ]);
 
 /*
