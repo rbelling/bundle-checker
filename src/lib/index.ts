@@ -11,14 +11,7 @@ import {
   IFileSizeReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import {
-  commentOnPr,
-  createMarkdownTable,
-  getFileExtension,
-  getFormattedRows,
-  groupFilesByExtension,
-  squashReportByFileExtension
-} from './utils';
+import { commentOnPr, getFormattedRows, squashReportByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
