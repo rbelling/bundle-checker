@@ -1,9 +1,22 @@
 sudo: required
 language: node_js
 node_js:
-  - "11"
+  - '11'
 script:
   - yarn lint
   - yarn test
   - yarn pack
-  - ./bin/run compare --prComment --gitRepository='https://github.com/rbelling/bundle-checker.git' --installScript='yarn' --buildScript='yarn build' --currentBranch=$TRAVIS_PULL_REQUEST_BRANCH --distPath='build' --targetBranch=$TRAVIS_BRANCH
+  - "./bin/run compare --prComment --gitRepository='https://github.com/rbelling/bundle-checker.git'
+    --installScript='yarn' --buildScript='yarn build' --currentBranch=$TRAVIS_PULL_REQUEST_BRANCH
+    --distPath='build' --targetBranch=$TRAVIS_BRANCH"
+deploy:
+  provider: npm
+  email: riccardo.bellingeri@gmail.com
+  api_key:
+    secure: UfN6d+NDVo94YZPuN3RI+qwUtVNlfUKLs/x37ZIm1zwxJtX5TDCaahazkmrxYIKSz8LLhCT92jhP3RnscBzYiv7BwuqGdz+6delkDMo+jgYnPXUEZv/kqzATdfz+3fDSFMcLO10eH07u9fwyT25Xs6XK5OCYknSCII/ek6c1Qxw9NnmPZvTb4zs/NiMkhg1rQQwtisxH7ps6F/VFbIVn/CzR30B0kxdirZL+IiVSjkxjgmfsb/TF0G5gBfzDMGIPLViPY3qkruvxSxMy2RqHNGNPBQhbScpfp5xNJfH0XB2uBQU+RVLKlllCLKTNi+yejxrNJ/CyYPSbHSmkswZG+EXGwbxqTPTCxFTqmOvKB8z8FWw7rWY9pOBdfIOoZBmHpl5MuEy1At53826Joo/ngIGBtO4K8+QcSkDGsFTcII1/h7NVSApcS6L8rTHc6on2kWQnYTpMYzfcKt2T8yirUVN9N5+klM+RrVgngfvXItqFWp+23va6/FakjP/F0DAzy6I61OthIaiefKcz7wPamv6JjDoi/E2DqTFN8unhLhWIskMjQjskOUANhXB+t3r89CkSk+VFe4gx+vFw3TAdzOxVm82XXrqOVX60H5UWi16J07LRpvEk+coIgZqg9V2Rq61REi8DDMoFkrGE5EdOeXFIxWkbWtzJp7K2rBvE+78=
+  on:
+    repo: rbelling/bundle-checker
+    branch: master
+    # We want to release every time something is merged on master, regardless of the commit being tagged
+    tags: false
+  skip_cleanup: true

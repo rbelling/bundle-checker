@@ -1,8 +1,9 @@
 [![Build Status](https://travis-ci.org/rbelling/bundle-checker.png)](https://travis-ci.org/rbelling/bundle-checker)
+[![NPM Version](https://img.shields.io/npm/v/bundle-checker.svg)](https://www.npmjs.com/package/bundle-checker)
 
 # bundle-checker
 
-> CLI tool that generates stats on bundle files
+> Compare the size of build files in two git branches.
 
 ## Develop and test locally the CLI
 
