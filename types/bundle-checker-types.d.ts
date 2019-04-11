@@ -24,6 +24,17 @@ export interface IFileSizeReport {
   [key: string]: number;
 }
 
-export type ITableCell = string | number;
+export type ITableCell = string;
 
 export type ITableRow = [ITableCell, ITableCell, ITableCell];
+
+export interface IConsoleItem {
+  [key: string]: string;
+}
+export type IConsoleTable = IConsoleItem[];
+
+export interface IPrintStdout {
+  report: IBundleCheckerReport;
+  targetBranchName: string;
+  currentBranchName: string;
+}

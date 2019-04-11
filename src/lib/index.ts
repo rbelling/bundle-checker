@@ -8,10 +8,8 @@ import * as util from 'util';
 import {
   IBundleCheckerParams,
   IBundleCheckerReport,
-  IFileSizeReport,
-  ITableRow
+  IFileSizeReport
 } from '../../types/bundle-checker-types';
-import { commentOnPr, getFormattedRows, squashReportByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -22,29 +20,11 @@ export default class BundleChecker {
   private inputParams: IBundleCheckerParams;
 
   constructor(params: IBundleCheckerParams) {
-    this.inputParams = params; // TODO: perform default override of some params
+    this.inputParams = params;
     this.originalCwd = process.cwd();
   }
 
-  public async compareByFileExtension(): Promise<ITableRow[]> {
-    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
-
-    return getFormattedRows({
-      currentBranchReport: squashReportByFileExtension(currentBranchReport),
-      targetBranchReport: squashReportByFileExtension(targetBranchReport)
-    });
-  }
-
-  public async compare(): Promise<ITableRow[]> {
-    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
-    return getFormattedRows({ targetBranchReport, currentBranchReport }, this.workDir);
-  }
-
-  public async commentOnPr(comment: any) {
-    await commentOnPr(comment);
-  }
-
-  private async compareEachFile(): Promise<IBundleCheckerReport> {
+  public async compare(): Promise<IBundleCheckerReport> {
     let report: IBundleCheckerReport = {
       currentBranchReport: {},
       targetBranchReport: {}

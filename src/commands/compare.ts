@@ -2,6 +2,7 @@ import { Command, flags as OclifFlags } from '@oclif/command';
 import { exec as childProcessExec } from 'child_process';
 import * as util from 'util';
 import BundleChecker from '../lib';
+import { commentOnPr, printStdout } from '../lib/utils';
 
 const exec = util.promisify(childProcessExec);
 
@@ -9,6 +10,7 @@ export default class Compare extends Command {
   public static description = 'Compare the size of build files in two git branches.';
   public static examples = [`$ npx bundle-checker compare`];
 
+  // TODO: Define interface for this.
   public static flags = {
     buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
     currentBranch: OclifFlags.string({ description: '[default: branch detected] currentBranch' }),
@@ -27,10 +29,15 @@ export default class Compare extends Command {
   public async run() {
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
+    const { currentBranch, targetBranch } = localFlags;
     const checker = new BundleChecker(localFlags);
-    const result = await checker.compareByFileExtension();
-    if (flags.prComment) await checker.commentOnPr(result);
-    console.log(result);
+    const report = await checker.compare();
+    if (flags.prComment) await commentOnPr(report);
+    printStdout({
+      currentBranchName: currentBranch,
+      report,
+      targetBranchName: targetBranch
+    });
   }
   private async mergeFlagsWithDefaults(flags: any) {
     const defaults = {} as any;

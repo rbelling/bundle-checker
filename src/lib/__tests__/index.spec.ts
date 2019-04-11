@@ -1,5 +1,6 @@
+import { add, pipe, reduce, values } from 'ramda';
 import BundleChecker from '..';
-import { IBundleCheckerParams } from '../../../types/bundle-checker-types';
+import { IBundleCheckerParams, IBundleCheckerReport } from '../../../types/bundle-checker-types';
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
@@ -15,9 +16,31 @@ const dummyParams: IBundleCheckerParams = {
 
 describe('Bundle Checker', () => {
   jest.setTimeout(TEN_MINUTES);
-  test(`Can get bundle size of two branches`, async () => {
+
+  let result: IBundleCheckerReport;
+  beforeAll(async () => {
     const checker = new BundleChecker(dummyParams);
-    const result = await checker.compareByFileExtension();
-    expect(result).toEqual([['js', '11.26KB', '11.26KB']]);
+    result = await checker.compare();
+  });
+
+  test(`Can get bundle size of two branches`, async () => {
+    expect(result).not.toBe(undefined);
+  });
+
+  test(`CurrentBranchReport has 4 entries`, async () => {
+    expect(Object.entries(result.currentBranchReport).length).toEqual(4);
+  });
+
+  test(`TargetBranchReport has 4 entries`, async () => {
+    expect(Object.entries(result.targetBranchReport).length).toEqual(4);
+  });
+
+  test(`CurrentBranchReport and TargetBranchReport has same total sizes`, async () => {
+    const { currentBranchReport, targetBranchReport } = result;
+    const getTotal = pipe(
+      values,
+      reduce(add, 0 as any)
+    );
+    expect(getTotal(targetBranchReport)).toEqual(getTotal(currentBranchReport));
   });
 });

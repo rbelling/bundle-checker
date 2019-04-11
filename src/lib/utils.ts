@@ -1,7 +1,13 @@
 import github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
-import { IBundleCheckerReport, IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
+import {
+  IBundleCheckerReport,
+  IConsoleTable,
+  IFileSizeReport,
+  IPrintStdout,
+  ITableRow
+} from '../../types/bundle-checker-types';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
@@ -72,3 +78,38 @@ export async function commentOnPr(body: any) {
     console.error(error);
   }
 }
+export async function printStdout(args: IPrintStdout) {
+  const totalTable = getConsoleTotalTable(args);
+  const filesBreakdownTable = getFilesBreakDownTable(args);
+  console.log('TOTALS');
+  console.table(totalTable);
+  console.log('FILE BREAKDOWN');
+  console.table(filesBreakdownTable);
+}
+
+const getConsoleTotalTable = ({
+  report,
+  currentBranchName,
+  targetBranchName
+}: IPrintStdout): IConsoleTable => {
+  const table = getFormattedRows({
+    currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
+    targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
+  });
+  return table.map(([ext, currentSize, targetSize]) => ({
+    Ext: `(${ext})`,
+    [currentBranchName]: currentSize,
+    [targetBranchName]: targetSize
+  }));
+};
+
+const getFilesBreakDownTable = ({
+  currentBranchName,
+  targetBranchName
+}: IPrintStdout): IConsoleTable => [
+  {
+    File: 'TODO:',
+    [currentBranchName]: 'currentBranchName',
+    [targetBranchName]: 'currentBranchName'
+  }
+];
