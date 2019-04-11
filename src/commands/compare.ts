@@ -1,6 +1,7 @@
 import { Command, flags as OclifFlags } from '@oclif/command';
 import { exec as childProcessExec } from 'child_process';
 import * as util from 'util';
+import { ITableRow } from '../../types/bundle-checker-types';
 import BundleChecker from '../lib';
 import {
   commentOnPr,
@@ -37,8 +38,8 @@ export default class Compare extends Command {
     const { currentBranch, targetBranch } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
-    const overviewReportHeader = ['File name', targetBranch, currentBranch];
-    const filesBreakDownHeader = ['File extension', targetBranch, currentBranch];
+    const overviewReportHeader = ['File name', targetBranch, currentBranch] as ITableRow;
+    const filesBreakDownHeader = ['File extension', targetBranch, currentBranch] as ITableRow;
 
     if (flags.prComment) {
       await commentOnPr([

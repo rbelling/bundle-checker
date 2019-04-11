@@ -1,7 +1,6 @@
 import { add, pipe, reduce, values } from 'ramda';
 import BundleChecker from '..';
 import { IBundleCheckerParams, IBundleCheckerReport } from '../../../types/bundle-checker-types';
-import { getFormattedRows, squashReportByFileExtension } from '../utils';
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
