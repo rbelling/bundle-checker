@@ -68,11 +68,19 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr(body: string) {
+export async function commentOnPr(message: string, isCollapsibleComment: boolean = true) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
     const octokit = new Github({ auth: GITHUB_TOKEN });
+    const body = isCollapsibleComment
+      ? `<details>
+          <summary>Click to expand</summary>
+          <p>
+            ${message}
+          </p>
+        </details>`
+      : message;
     await octokit.issues.createComment({ owner, repo, number: TRAVIS_PULL_REQUEST, body });
   } catch (error) {
     console.error(error);
