@@ -13,10 +13,9 @@ import {
 } from '../../types/bundle-checker-types';
 import {
   commentOnPr,
-  createMarkdownTable,
-  getFileExtension,
+  getFilesBreakDownTable,
   getFormattedRows,
-  groupFilesByExtension,
+  getTotalTable,
   squashReportByFileExtension
 } from './utils';
 const exec = util.promisify(childProcessExec);
@@ -29,29 +28,31 @@ export default class BundleChecker {
   private inputParams: IBundleCheckerParams;
 
   constructor(params: IBundleCheckerParams) {
-    this.inputParams = params; // TODO: perform default override of some params
+    this.inputParams = params;
     this.originalCwd = process.cwd();
   }
 
+  // TODO: remove this and reuse getFormattedRows in the print phase
   public async compareByFileExtension(): Promise<ITableRow[]> {
     const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
-
     return getFormattedRows({
       currentBranchReport: squashReportByFileExtension(currentBranchReport),
       targetBranchReport: squashReportByFileExtension(targetBranchReport)
     });
   }
 
-  public async compare(): Promise<ITableRow[]> {
-    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
-    return getFormattedRows({ targetBranchReport, currentBranchReport }, this.workDir);
+  public async commentOnPr(result: IBundleCheckerReport) {
+    await commentOnPr('TODO: implement');
   }
 
-  public async commentOnPr(comment: any) {
-    await commentOnPr(comment);
+  public printStdout(result: IBundleCheckerReport) {
+    const totalTable = getTotalTable(result);
+    const filesBreakdownTable = getFilesBreakDownTable(result);
+    console.table(totalTable);
+    console.table(filesBreakdownTable);
   }
 
-  private async compareEachFile(): Promise<IBundleCheckerReport> {
+  public async compareEachFile(): Promise<IBundleCheckerReport> {
     let report: IBundleCheckerReport = {
       currentBranchReport: {},
       targetBranchReport: {}

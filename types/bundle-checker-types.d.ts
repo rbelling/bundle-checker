@@ -24,6 +24,8 @@ export interface IFileSizeReport {
   [key: string]: number;
 }
 
-export type ITableCell = string | number;
+export type ITableCell = string;
 
 export type ITableRow = [ITableCell, ITableCell, ITableCell];
+
+export type ITable = ITableRow[];

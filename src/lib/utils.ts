@@ -1,7 +1,12 @@
 import github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
-import { IBundleCheckerReport, IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
+import {
+  IBundleCheckerReport,
+  IFileSizeReport,
+  ITable,
+  ITableRow
+} from '../../types/bundle-checker-types';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
@@ -71,4 +76,29 @@ export async function commentOnPr(body: any) {
   } catch (error) {
     console.error(error);
   }
+}
+
+export function getBranches(
+  result: IBundleCheckerReport
+): { currentBranchName: string; targetBranchName: string } {
+  return {
+    currentBranchName: Object.values(result).shift(),
+    targetBranchName: Object.values(result).pop()
+  };
+}
+
+export function getTotalTable(result: IBundleCheckerReport): ITable {
+  // const { currentBranchName, targetBranchName } = getBranches(result);
+  return getFormattedRows({
+    currentBranchReport: squashReportByFileExtension(result.currentBranchReport),
+    targetBranchReport: squashReportByFileExtension(result.targetBranchReport)
+  });
+  // TODO:
+  // return [['Extensions', currentBranchName, targetBranchName]];
+}
+
+export function getFilesBreakDownTable(result: IBundleCheckerReport): ITable {
+  const { currentBranchName, targetBranchName } = getBranches(result);
+  // TODO:
+  return [['File', currentBranchName, targetBranchName]];
 }
