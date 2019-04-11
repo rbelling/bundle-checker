@@ -38,8 +38,8 @@ export default class Compare extends Command {
     const { currentBranch, targetBranch } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
-    const overviewReportHeader = ['File name', targetBranch, currentBranch] as ITableRow;
-    const filesBreakDownHeader = ['File extension', targetBranch, currentBranch] as ITableRow;
+    const overviewReportHeader = ['File name', currentBranch, targetBranch] as ITableRow;
+    const filesBreakDownHeader = ['File extension', currentBranch, targetBranch] as ITableRow;
 
     if (flags.prComment) {
       await commentOnPr([
