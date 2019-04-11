@@ -1,4 +1,4 @@
-import github from '@octokit/rest';
+import Github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
 import {
@@ -36,21 +36,13 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
     return getFileExtension(current);
   })(targetedFiles);
 
-export const getFormattedRows = (
-  report: IBundleCheckerReport,
-  omitFromFilename: string = ''
-): ITableRow[] =>
+export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
     .map(fileName => [
       fileName,
       printBytes(report.targetBranchReport[fileName] || 0),
       withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
-    ])
-    .map(([fileName, targetBranchSize, currentBranchSize]) => [
-      fileName.replace(omitFromFilename, ''),
-      targetBranchSize,
-      currentBranchSize
     ]);
 
 /*
@@ -68,12 +60,17 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr(body: any) {
+export async function commentOnPr(table: ITableRow[]) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
-    const octokit = new github({ auth: GITHUB_TOKEN });
-    await octokit.issues.createComment({ owner, repo, number: TRAVIS_PULL_REQUEST, body });
+    const octokit = new Github({ auth: GITHUB_TOKEN });
+    await octokit.issues.createComment({
+      body: createMarkdownTable(table),
+      number: TRAVIS_PULL_REQUEST,
+      owner,
+      repo
+    });
   } catch (error) {
     console.error(error);
   }

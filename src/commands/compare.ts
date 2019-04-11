@@ -1,8 +1,14 @@
 import { Command, flags as OclifFlags } from '@oclif/command';
 import { exec as childProcessExec } from 'child_process';
 import * as util from 'util';
+import { ITableRow } from '../../types/bundle-checker-types';
 import BundleChecker from '../lib';
-import { commentOnPr, printStdout } from '../lib/utils';
+import {
+  commentOnPr,
+  getFormattedRows,
+  printStdout,
+  squashReportByFileExtension
+} from '../lib/utils';
 
 const exec = util.promisify(childProcessExec);
 
@@ -32,8 +38,20 @@ export default class Compare extends Command {
     const { currentBranch, targetBranch } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
-    if (flags.prComment) await commentOnPr(report);
-    printStdout({
+    const overviewReportHeader = ['File name', targetBranch, currentBranch] as ITableRow;
+    const filesBreakDownHeader = ['File extension', targetBranch, currentBranch] as ITableRow;
+
+    if (flags.prComment) {
+      await commentOnPr([
+        overviewReportHeader,
+        ...getFormattedRows({
+          currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
+          targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
+        })
+      ]);
+      await commentOnPr([filesBreakDownHeader, ...getFormattedRows(report)]);
+    }
+    await printStdout({
       currentBranchName: currentBranch,
       report,
       targetBranchName: targetBranch
