@@ -41,16 +41,14 @@ export default class Compare extends Command {
     const filesBreakDownHeader = ['File extension', targetBranch, currentBranch];
 
     if (flags.prComment) {
-      await commentOnPr(
-        getFormattedRows(
-          {
-            currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
-            targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
-          },
-          overviewReportHeader
-        )
-      );
-      await commentOnPr(getFormattedRows(report, filesBreakDownHeader));
+      await commentOnPr([
+        overviewReportHeader,
+        ...getFormattedRows({
+          currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
+          targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
+        })
+      ]);
+      await commentOnPr([filesBreakDownHeader, ...getFormattedRows(report)]);
     }
     await printStdout({
       currentBranchName: currentBranch,

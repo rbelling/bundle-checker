@@ -37,16 +37,14 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
     return getFileExtension(current);
   })(targetedFiles);
 
-export const getFormattedRows = (report: IBundleCheckerReport, header?: ITableRow): ITable => [
-  header,
-  ...Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
+export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
+  Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
     .map(fileName => [
       fileName,
       printBytes(report.targetBranchReport[fileName] || 0),
       withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
-    ])
-];
+    ]);
 
 /*
  * Given an IFileSizeReport, returns a new IFileSizeReport where entries are grouped by file extension
