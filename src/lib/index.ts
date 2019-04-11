@@ -13,9 +13,10 @@ import {
 } from '../../types/bundle-checker-types';
 import {
   commentOnPr,
+  getBranches,
+  getConsoleTotalTable,
   getFilesBreakDownTable,
   getFormattedRows,
-  getTotalTable,
   squashReportByFileExtension
 } from './utils';
 const exec = util.promisify(childProcessExec);
@@ -46,10 +47,11 @@ export default class BundleChecker {
   }
 
   public printStdout(result: IBundleCheckerReport) {
-    const totalTable = getTotalTable(result);
+    const { currentBranchName, targetBranchName } = getBranches(result);
+    const totalTable = getConsoleTotalTable(result);
     const filesBreakdownTable = getFilesBreakDownTable(result);
-    console.table(totalTable);
-    console.table(filesBreakdownTable);
+    console.table(totalTable, ['Extensions', currentBranchName, targetBranchName]);
+    console.table(filesBreakdownTable, ['File', currentBranchName, targetBranchName]);
   }
 
   public async compareEachFile(): Promise<IBundleCheckerReport> {
@@ -76,8 +78,8 @@ export default class BundleChecker {
       await this.buildBranch(targetBranch);
       const targetBranchFilesSizes = await this.getFilesSizes();
       report = {
-        currentBranchReport: currentBranchFilesSizes,
-        targetBranchReport: targetBranchFilesSizes
+        [currentBranch]: currentBranchFilesSizes,
+        [targetBranch]: targetBranchFilesSizes
       };
     } catch (e) {
       this.spinner.fail(e);
