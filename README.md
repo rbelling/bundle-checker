@@ -34,6 +34,7 @@ $ npx bundle-checker --prComment
 ```
 
 The command needs 3 env variable set:
+
 | var | Desc |
 | ------------- | ------------- |
 | _TRAVIS_PULL_REQUEST_ | Number of pull request |
