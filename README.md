@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/rbelling/bundle-checker.png)](https://travis-ci.org/rbelling/bundle-checker)
+[![Build Status](https://travis-ci.org/rbelling/bundle-checker.svg?branch=master)](https://travis-ci.org/rbelling/bundle-checker)
 
 # bundle-checker
 
