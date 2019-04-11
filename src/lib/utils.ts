@@ -1,12 +1,7 @@
 import github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
-import {
-  IBundleCheckerReport,
-  IConsoleTable,
-  IFileSizeReport,
-  ITableRow
-} from '../../types/bundle-checker-types';
+import { IBundleCheckerReport, IFileSizeReport, ITableRow } from '../../types/bundle-checker-types';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
@@ -38,9 +33,8 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
 export const getFormattedRows = (
   report: IBundleCheckerReport,
   omitFromFilename: string = ''
-): ITableRow[] => {
-  const { currentBranchName, targetBranchName } = getBranches(report);
-  return Object.keys({ ...report[currentBranchName], ...report[targetBranchName] })
+): ITableRow[] =>
+  Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
     .map(fileName => [
       fileName,
@@ -52,7 +46,6 @@ export const getFormattedRows = (
       targetBranchSize,
       currentBranchSize
     ]);
-};
 
 /*
  * Given an IFileSizeReport, returns a new IFileSizeReport where entries are grouped by file extension
@@ -69,7 +62,7 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr(body: any) {
+export async function s(body: any) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
@@ -78,30 +71,4 @@ export async function commentOnPr(body: any) {
   } catch (error) {
     console.error(error);
   }
-}
-
-export const getBranches = (
-  result: IBundleCheckerReport
-): { currentBranchName: string; targetBranchName: string } => ({
-  currentBranchName: Object.keys(result).shift() as string,
-  targetBranchName: Object.keys(result).pop() as string
-});
-
-export function getConsoleTotalTable(result: IBundleCheckerReport): IConsoleTable {
-  const { currentBranchName, targetBranchName } = getBranches(result);
-  const table = getFormattedRows({
-    currentBranchReport: squashReportByFileExtension(result[currentBranchName]),
-    targetBranchReport: squashReportByFileExtension(result[targetBranchName])
-  });
-  return table.map(([ext, currentSize, targetSize]) => ({
-    Ext: `(${ext})`,
-    [currentBranchName]: currentSize,
-    [targetBranchName]: targetSize
-  }));
-}
-
-export function getFilesBreakDownTable(result: IBundleCheckerReport): ITableRow[] {
-  const { currentBranchName, targetBranchName } = getBranches(result);
-  // TODO:
-  return [['File', currentBranchName, targetBranchName]];
 }

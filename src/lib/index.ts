@@ -8,17 +8,11 @@ import * as util from 'util';
 import {
   IBundleCheckerParams,
   IBundleCheckerReport,
+  IConsoleTable,
   IFileSizeReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import {
-  commentOnPr,
-  getBranches,
-  getConsoleTotalTable,
-  getFilesBreakDownTable,
-  getFormattedRows,
-  squashReportByFileExtension
-} from './utils';
+import { commentOnPr, getFormattedRows, squashReportByFileExtension } from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -33,25 +27,15 @@ export default class BundleChecker {
     this.originalCwd = process.cwd();
   }
 
-  // TODO: remove this and reuse getFormattedRows in the print phase
-  public async compareByFileExtension(): Promise<ITableRow[]> {
-    const { currentBranchReport, targetBranchReport } = await this.compareEachFile();
-    return getFormattedRows({
-      currentBranchReport: squashReportByFileExtension(currentBranchReport),
-      targetBranchReport: squashReportByFileExtension(targetBranchReport)
-    });
-  }
-
   public async commentOnPr(result: IBundleCheckerReport) {
     await commentOnPr('TODO: implement');
   }
 
   public printStdout(result: IBundleCheckerReport) {
-    const { currentBranchName, targetBranchName } = getBranches(result);
-    const totalTable = getConsoleTotalTable(result);
-    const filesBreakdownTable = getFilesBreakDownTable(result);
-    console.table(totalTable, ['Extensions', currentBranchName, targetBranchName]);
-    console.table(filesBreakdownTable, ['File', currentBranchName, targetBranchName]);
+    const totalTable = this.getConsoleTotalTable(result);
+    const filesBreakdownTable = this.getFilesBreakDownTable(result);
+    console.table(totalTable);
+    console.table(filesBreakdownTable);
   }
 
   public async compareEachFile(): Promise<IBundleCheckerReport> {
@@ -78,8 +62,8 @@ export default class BundleChecker {
       await this.buildBranch(targetBranch);
       const targetBranchFilesSizes = await this.getFilesSizes();
       report = {
-        [currentBranch]: currentBranchFilesSizes,
-        [targetBranch]: targetBranchFilesSizes
+        currentBranchReport: currentBranchFilesSizes,
+        targetBranchReport: targetBranchFilesSizes
       };
     } catch (e) {
       this.spinner.fail(e);
@@ -171,4 +155,21 @@ export default class BundleChecker {
       return 0;
     }
   }
+
+  private getConsoleTotalTable = (result: IBundleCheckerReport): IConsoleTable => {
+    const table = getFormattedRows({
+      currentBranchReport: squashReportByFileExtension(result.currentBranchReport),
+      targetBranchReport: squashReportByFileExtension(result.targetBranchReport)
+    });
+    return table.map(([ext, currentSize, targetSize]) => ({
+      Ext: `(${ext})`,
+      [this.inputParams.currentBranch]: currentSize,
+      [this.inputParams.targetBranch]: targetSize
+    }));
+  };
+
+  private getFilesBreakDownTable = (result: IBundleCheckerReport): any => {
+    const { currentBranch, targetBranch } = this.inputParams;
+    return [['File', currentBranch, targetBranch]];
+  };
 }
