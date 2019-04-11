@@ -103,6 +103,13 @@ const getConsoleTotalTable = ({
   }));
 };
 
-const getFilesBreakDownTable = ({ currentBranchName, targetBranchName }: IPrintStdout): any => {
-  return [['File', currentBranchName, currentBranchName]];
-};
+const getFilesBreakDownTable = ({
+  currentBranchName,
+  targetBranchName
+}: IPrintStdout): IConsoleTable => [
+  {
+    File: 'TODO:',
+    [currentBranchName]: 'currentBranchName',
+    [targetBranchName]: 'currentBranchName'
+  }
+];
