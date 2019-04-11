@@ -61,12 +61,17 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr(body: string) {
+export async function commentOnPr(report: IBundleCheckerReport) {
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
     const octokit = new Github({ auth: GITHUB_TOKEN });
-    await octokit.issues.createComment({ owner, repo, number: TRAVIS_PULL_REQUEST, body });
+    await octokit.issues.createComment({
+      body: createMarkdownTable(getFormattedRows(report)),
+      number: TRAVIS_PULL_REQUEST,
+      owner,
+      repo
+    });
   } catch (error) {
     console.error(error);
   }
