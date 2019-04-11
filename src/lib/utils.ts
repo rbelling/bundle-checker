@@ -6,6 +6,7 @@ import {
   IConsoleTable,
   IFileSizeReport,
   IPrintStdout,
+  ITable,
   ITableRow
 } from '../../types/bundle-checker-types';
 
@@ -18,13 +19,13 @@ export function withDeltaSize(a: number = 0, b: number = 0): string {
   }
 }
 
-export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
+export function createMarkdownTable([headerRow, ...contentRows]: ITable): string {
   const buildHeader = (headers: ITableRow): string =>
     `| ${headers.join(' | ')} |\n` + `| ${headers.map(_ => '---').join(' | ')} |`;
 
   const buildRow = (row: ITableRow): string => `| ${row.join(' | ')} |`;
 
-  const buildRows = (rows: ITableRow[]): string => rows.map(buildRow).join('\n');
+  const buildRows = (rows: ITable): string => rows.map(buildRow).join('\n');
 
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
@@ -39,7 +40,7 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
 export const getFormattedRows = (
   report: IBundleCheckerReport,
   omitFromFilename: string = ''
-): ITableRow[] =>
+): ITable =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
     .sort()
     .map(fileName => [

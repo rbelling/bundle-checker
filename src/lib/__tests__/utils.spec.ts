@@ -9,7 +9,7 @@ import {
 describe('generating markdown tables', () => {
   it('build a markdown table with the content given', () => {
     const headers = ['git branch', 'base branch', 'current branch'] as ITableRow;
-    const rows = [['file1.js', '356.6kB', '320KB'], ['file2.css', '320kB', '330KB']] as ITableRow[];
+    const rows = [['file1.js', '356.6kB', '320KB'], ['file2.css', '320kB', '330KB']] as ITable;
 
     const table = createMarkdownTable([headers, ...rows]);
 
@@ -52,7 +52,7 @@ describe('generating markdown tables', () => {
       js: 1100,
       svg: 150
     };
-    const expectedFormat: ITableRow[] = [
+    const expectedFormat: ITable = [
       ['css', '150B', '0B (▼ -150B)'],
       ['jpg', '0B', '1.95KB (🔺 +1.95KB)'],
       ['js', '1000B', '1.07KB (🔺 +100B)'],

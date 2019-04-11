@@ -28,6 +28,8 @@ export type ITableCell = string;
 
 export type ITableRow = [ITableCell, ITableCell, ITableCell];
 
+export type ITable = ITableRow[];
+
 export interface IConsoleItem {
   [key: string]: string;
 }
