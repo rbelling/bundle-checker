@@ -6,7 +6,7 @@ import BundleChecker from '../lib';
 const exec = util.promisify(childProcessExec);
 
 export default class Compare extends Command {
-  public static description = 'Compare JS/CSS bundles of two git branches.';
+  public static description = 'Compare the size of build files in two git branches.';
   public static examples = [`$ npx bundle-checker compare`];
 
   public static flags = {
