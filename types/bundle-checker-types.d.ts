@@ -40,3 +40,10 @@ export interface IPrintableReport {
 }
 
 export type IAbstractTableRow = [string, number, number];
+
+export interface IGetExistingCommentId {
+  auth: string;
+  number: number;
+  owner: string;
+  repo: string;
+}

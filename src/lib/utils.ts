@@ -6,6 +6,7 @@ import {
   IBundleCheckerReport,
   IConsoleTable,
   IFileSizeReport,
+  IGetExistingCommentId,
   IPrintableReport,
   ITableRow
 } from '../../types/bundle-checker-types';
@@ -16,6 +17,8 @@ const SHARED_TABLE_VALUES = {
   FILE_NAME: 'name',
   TOTALS_TITLE: 'TOTALS'
 };
+
+const COMMENT_WATERMARK = '<!-- Created by `bundle-checker` -->';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
@@ -84,7 +87,6 @@ export async function commentOnPr({
   report,
   targetBranchName
 }: IPrintableReport) {
-  const COMMENT_WATERMARK = '<!-- Created with `bundle-checker` -->';
   const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
     ['name', currentBranchName, targetBranchName],
     ...getFormattedRows({
@@ -103,43 +105,34 @@ export async function commentOnPr({
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
     const octokit = new Github({ auth: GITHUB_TOKEN });
-    const prComment = {
-      body: `${overviewTable}\n\n${filesBreakDownTable}\n\n${COMMENT_WATERMARK}`,
+    const body = `${overviewTable}\n\n${filesBreakDownTable}\n\n${COMMENT_WATERMARK}`;
+    const githubParams = {
       number: TRAVIS_PULL_REQUEST,
       owner,
       repo
     };
-    const existingCommentIDs = await (async (): Promise<number[]> => {
-      /*
-       * 1. Retrieve all comments of the current PR
-       * 2. If there is an existing comment by the bundle-checker bot, update that
-       */
-      const userID = 'bundle-checker-bot';
-      const allComments = [
-        {
-          body: `A comment on github, posted by the bundle-checker bot.${COMMENT_WATERMARK}`,
-          id: 123456,
-          user: {
-            id: 'bundle-checker-bot'
-          }
-        }
-      ];
-      return allComments
-        .filter(comment => comment.user.id === userID)
-        .filter(comment => comment.body.includes(COMMENT_WATERMARK))
-        .map(comment => comment.id); // only return IDs
-    })();
-    if (existingCommentIDs.length && false) {
-      await octokit.issues.updateComment({
-        ...prComment,
-        comment_id: existingCommentIDs[0]
-      });
-    } else {
-      await octokit.issues.createComment(prComment);
-    }
+    const commentId = await getExistingCommentId({ ...githubParams, auth: GITHUB_TOKEN });
+    if (commentId)
+      return await octokit.issues.updateComment({ ...githubParams, comment_id: commentId, body });
+    return octokit.issues.createComment({ ...githubParams, body });
   } catch (error) {
     console.error(error);
   }
+}
+
+export async function getExistingCommentId(params: IGetExistingCommentId): Promise<number> {
+  const octokit = new Github({ auth: params.auth });
+  const allComments = await octokit.issues.listComments({
+    number: params.number,
+    owner: params.owner,
+    repo: params.repo
+  });
+  return (
+    allComments.data
+      .filter(comment => comment.body.includes(COMMENT_WATERMARK))
+      .map(comment => comment.id)
+      .pop() || 0
+  );
 }
 
 export async function printStdout(args: IPrintableReport) {
