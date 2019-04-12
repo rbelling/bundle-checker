@@ -1,12 +1,17 @@
 [![Build Status](https://travis-ci.org/rbelling/bundle-checker.png)](https://travis-ci.org/rbelling/bundle-checker)
 [![NPM Version](https://img.shields.io/npm/v/bundle-checker.svg)](https://www.npmjs.com/package/bundle-checker)
 
+
 # bundle-checker
 
 > Compare the size of build files in two git branches.
 
 ![bundle-chercker](https://user-images.githubusercontent.com/6695231/56052681-fa9b7a80-5d49-11e9-9272-0df40920b14e.gif)
 
+Summary:
+- [Usage](#Usage)
+- [Post result as PR comment](#Post-result-as-PR-comment)
+- [Develop and test locally the CLI](#Develop-and-test-locally-the-CLI)
 
 ## Usage
 
@@ -21,7 +26,7 @@ $ npx bundle-checker compare \
         --targetFilesPattern='**/*.js,**/*.css'
 ```
 
-All parameters are optionals, default table:
+All parameters are optionals, defaults:
 
 | Parameter | Default |
 | ------------- | ------------- |
