@@ -18,7 +18,8 @@ const SHARED_TABLE_VALUES = {
   TOTALS_TITLE: 'TOTALS'
 };
 
-const COMMENT_WATERMARK = '<!-- Created by `bundle-checker` -->';
+const COMMENT_WATERMARK =
+  '<p align="right">(Generate by <a href="https://github.com/rbelling/bundle-checker">bundle-checker 🔎📦</a>)</p>';
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
