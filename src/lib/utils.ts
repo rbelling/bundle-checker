@@ -78,14 +78,13 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
 
 /**
  * Posts a comment on a Pull Request, or updates an existing one if found
- * @param table
  */
 export async function commentOnPr({
   currentBranchName,
   report,
   targetBranchName
 }: IPrintableReport) {
-  const COMMENT_WATERMARK = 'a watermark that lets us identify comments posted by bundle-checker';
+  const COMMENT_WATERMARK = '<!-- Created with `bundle-checker` -->';
   const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
     ['name', currentBranchName, targetBranchName],
     ...getFormattedRows({
