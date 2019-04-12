@@ -83,17 +83,17 @@ export async function commentOnPr({
   targetBranchName
 }: IPrintableReport) {
   const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
-    [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
-    ...getFormattedRows(report)
-  ])}`;
-  const filesBreakDownTable = `### ${
-    SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE
-  }\n${createMarkdownTable([
     ['name', currentBranchName, targetBranchName],
     ...getFormattedRows({
       currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
       targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
     })
+  ])}`;
+  const filesBreakDownTable = `### ${
+    SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE
+  }\n${createMarkdownTable([
+    [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
+    ...getFormattedRows(report)
   ])}`;
 
   try {
