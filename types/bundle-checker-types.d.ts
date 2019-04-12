@@ -38,3 +38,5 @@ export interface IPrintStdout {
   targetBranchName: string;
   currentBranchName: string;
 }
+
+export type IAbstractTableRow = [string, number, number];

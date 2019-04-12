@@ -65,7 +65,7 @@ export default class BundleChecker {
       await exec(`mkdir -p ${this.workDir}`);
       process.chdir(this.workDir);
       const { stdout } = await exec(`pwd`);
-      this.spinner.info(`PWD: ${stdout.trim()}`);
+      this.spinner.info(`Working Directory: ${stdout.trim()}`);
       await this.cloneRepo(this.inputParams.gitRepository);
     }
   }

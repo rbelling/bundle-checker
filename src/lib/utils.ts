@@ -2,6 +2,7 @@ import Github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
 import {
+  IAbstractTableRow,
   IBundleCheckerReport,
   IConsoleTable,
   IFileSizeReport,
@@ -38,11 +39,20 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
 
 export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
-    .sort()
-    .map(fileName => [
+    .map(
+      fileName =>
+        [
+          fileName,
+          report.currentBranchReport[fileName] || 0,
+          report.targetBranchReport[fileName] || 0
+        ] as IAbstractTableRow
+    )
+    .sort(sortByDelta)
+    .filter(filterDelta)
+    .map(([fileName, currentBranchSize, targetBranchSize]: any) => [
       fileName,
-      printBytes(report.targetBranchReport[fileName] || 0),
-      withDeltaSize(report.targetBranchReport[fileName], report.currentBranchReport[fileName])
+      withDeltaSize(targetBranchSize, currentBranchSize),
+      printBytes(targetBranchSize)
     ]);
 
 /*
@@ -94,7 +104,7 @@ const getConsoleTotalTable = ({
     targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
   });
   return table.map(([ext, currentSize, targetSize]) => ({
-    Ext: `(${ext})`,
+    Ext: ext,
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
@@ -102,11 +112,21 @@ const getConsoleTotalTable = ({
 
 const getFilesBreakDownTable = ({
   currentBranchName,
-  targetBranchName
-}: IPrintStdout): IConsoleTable => [
-  {
-    File: 'TODO:',
-    [currentBranchName]: 'currentBranchName',
-    [targetBranchName]: 'currentBranchName'
-  }
-];
+  targetBranchName,
+  report
+}: IPrintStdout): any =>
+  getFormattedRows(report).map(([fileName, currentSize, targetSize]) => ({
+    File: fileName,
+    [currentBranchName]: currentSize,
+    [targetBranchName]: targetSize
+  }));
+
+const sortByDelta = (a: IAbstractTableRow, b: IAbstractTableRow) => {
+  const bDelta = b[1] - b[2];
+  const aDelta = a[1] - a[2];
+  if (bDelta - aDelta > 0) return 1;
+  if (bDelta - aDelta < 0) return -1;
+  return 0;
+};
+
+const filterDelta = (itemRow: IAbstractTableRow) => (itemRow[1] - itemRow[2] === 0 ? false : true);
