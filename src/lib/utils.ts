@@ -80,18 +80,36 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
  * Posts a comment on a Pull Request, or updates an existing one if found
  * @param table
  */
-export async function commentOnPr(table: ITableRow[]) {
+export async function commentOnPr({
+  currentBranchName,
+  report,
+  targetBranchName
+}: IPrintableReport) {
   const COMMENT_WATERMARK = 'a watermark that lets us identify comments posted by bundle-checker';
+  const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
+    ['name', currentBranchName, targetBranchName],
+    ...getFormattedRows({
+      currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
+      targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
+    })
+  ])}`;
+  const filesBreakDownTable = `### ${
+    SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE
+  }\n${createMarkdownTable([
+    [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
+    ...getFormattedRows(report)
+  ])}`;
+
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
+    const octokit = new Github({ auth: GITHUB_TOKEN });
     const prComment = {
-      body: `${createMarkdownTable(table)}\n${COMMENT_WATERMARK}`,
+      body: `${overviewTable}\n\n${filesBreakDownTable}\n\n${COMMENT_WATERMARK}`,
       number: TRAVIS_PULL_REQUEST,
       owner,
       repo
     };
-    const octokit = new Github({ auth: GITHUB_TOKEN });
     const existingCommentIDs = await (async (): Promise<number[]> => {
       /*
        * 1. Retrieve all comments of the current PR
