@@ -128,7 +128,7 @@ const getConsoleTotalTable = ({
     targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
   });
   return table.map(([ext, currentSize, targetSize]) => ({
-    Ext: SHARED_TABLE_VALUES.FILE_EXTENSION,
+    [SHARED_TABLE_VALUES.FILE_EXTENSION]: ext,
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
@@ -140,7 +140,7 @@ const getFilesBreakDownTable = ({
   report
 }: IPrintableReport): any =>
   getFormattedRows(report).map(([fileName, currentSize, targetSize]) => ({
-    File: SHARED_TABLE_VALUES.FILE_NAME,
+    [SHARED_TABLE_VALUES.FILE_NAME]: fileName,
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
