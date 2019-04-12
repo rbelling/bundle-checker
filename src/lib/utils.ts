@@ -76,35 +76,37 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export async function commentOnPr({
-  currentBranchName,
-  report,
-  targetBranchName
-}: IPrintableReport) {
-  const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
-    ['name', currentBranchName, targetBranchName],
-    ...getFormattedRows({
-      currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
-      targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
-    })
-  ])}`;
-  const filesBreakDownTable = `### ${
-    SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE
-  }\n${createMarkdownTable([
-    [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
-    ...getFormattedRows(report)
-  ])}`;
-
+/**
+ * Posts a comment on a Pull Request, or updates an existing one if found
+ * @param table
+ */
+export async function commentOnPr(table: ITableRow[]) {
+  const getExistingCommentId = (): number | null => {
+    /*
+     * 1. Retrieve all comments of the current PR
+     * 2. If there is an existing comment by the bundle-checker bot, update that
+     */
+    return null;
+  };
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
-    const octokit = new Github({ auth: GITHUB_TOKEN });
-    await octokit.issues.createComment({
-      body: `${overviewTable}\n\n${filesBreakDownTable}`,
+    const comment = {
+      body: createMarkdownTable(table),
       number: TRAVIS_PULL_REQUEST,
       owner,
       repo
-    });
+    };
+    const octokit = new Github({ auth: GITHUB_TOKEN });
+    const existingCommentId = await getExistingCommentId();
+    if (existingCommentId) {
+      await octokit.issues.updateComment({
+        ...comment,
+        comment_id: existingCommentId
+      });
+    } else {
+      await octokit.issues.createComment(comment);
+    }
   } catch (error) {
     console.error(error);
   }
