@@ -10,6 +10,13 @@ import {
   ITableRow
 } from '../../types/bundle-checker-types';
 
+const SHARED_TABLE_VALUES = {
+  FILES_BREAKDOWN_TITLE: 'FILE BREAKDOWN',
+  FILE_EXTENSION: 'extension',
+  FILE_NAME: 'name',
+  TOTALS_TITLE: 'TOTALS'
+};
+
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
   if (b - a === 0) {
@@ -70,29 +77,24 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-const TOTALS_TITLE = 'TOTALS';
-const FILE_BREAKDOWN_TITLE = 'FILE BREAKDOWN';
-
 export async function commentOnPr({
   currentBranchName,
   report,
   targetBranchName
 }: IPrintableReport) {
-  const overviewTable = `
-    ### ${TOTALS_TITLE}\n
-    ${createMarkdownTable([
-      ['extension', currentBranchName, targetBranchName],
-      ...getFormattedRows(report)
-    ])}`;
-  const filesBreakDownTable = `
-    ### ${FILE_BREAKDOWN_TITLE}\n
-    ${createMarkdownTable([
-      ['name', currentBranchName, targetBranchName],
-      ...getFormattedRows({
-        currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
-        targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
-      })
-    ])}`;
+  const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
+    [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
+    ...getFormattedRows(report)
+  ])}`;
+  const filesBreakDownTable = `### ${
+    SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE
+  }\n${createMarkdownTable([
+    ['name', currentBranchName, targetBranchName],
+    ...getFormattedRows({
+      currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
+      targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
+    })
+  ])}`;
 
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
@@ -111,9 +113,9 @@ export async function commentOnPr({
 export async function printStdout(args: IPrintableReport) {
   const totalTable = getConsoleTotalTable(args);
   const filesBreakdownTable = getFilesBreakDownTable(args);
-  console.log(TOTALS_TITLE);
+  console.log(SHARED_TABLE_VALUES.TOTALS_TITLE);
   console.table(totalTable);
-  console.log(FILE_BREAKDOWN_TITLE);
+  console.log(SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE);
   console.table(filesBreakdownTable);
 }
 
@@ -127,7 +129,7 @@ const getConsoleTotalTable = ({
     targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
   });
   return table.map(([ext, currentSize, targetSize]) => ({
-    Ext: ext,
+    Ext: SHARED_TABLE_VALUES.FILE_EXTENSION,
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
@@ -139,7 +141,7 @@ const getFilesBreakDownTable = ({
   report
 }: IPrintableReport): any =>
   getFormattedRows(report).map(([fileName, currentSize, targetSize]) => ({
-    File: fileName,
+    File: SHARED_TABLE_VALUES.FILE_NAME,
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
