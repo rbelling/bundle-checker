@@ -81,36 +81,50 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
  * @param table
  */
 export async function commentOnPr(table: ITableRow[]) {
-  const getExistingCommentId = (): number | null => {
-    /*
-     * 1. Retrieve all comments of the current PR
-     * 2. If there is an existing comment by the bundle-checker bot, update that
-     */
-    return null;
-  };
+  const COMMENT_WATERMARK = 'a watermark that lets us identify comments posted by bundle-checker';
   try {
     const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
     const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
-    const comment = {
-      body: createMarkdownTable(table),
+    const prComment = {
+      body: `${createMarkdownTable(table)}\n${COMMENT_WATERMARK}`,
       number: TRAVIS_PULL_REQUEST,
       owner,
       repo
     };
     const octokit = new Github({ auth: GITHUB_TOKEN });
-    const existingCommentId = await getExistingCommentId();
-    if (existingCommentId) {
+    const existingCommentIDs = await (async (): Promise<number[]> => {
+      /*
+       * 1. Retrieve all comments of the current PR
+       * 2. If there is an existing comment by the bundle-checker bot, update that
+       */
+      const userID = 'bundle-checker-bot';
+      const allComments = [
+        {
+          body: `A comment on github, posted by the bundle-checker bot.${COMMENT_WATERMARK}`,
+          id: 123456,
+          user: {
+            id: 'bundle-checker-bot'
+          }
+        }
+      ];
+      return allComments
+        .filter(comment => comment.user.id === userID)
+        .filter(comment => comment.body.includes(COMMENT_WATERMARK))
+        .map(comment => comment.id); // only return IDs
+    })();
+    if (existingCommentIDs.length && false) {
       await octokit.issues.updateComment({
-        ...comment,
-        comment_id: existingCommentId
+        ...prComment,
+        comment_id: existingCommentIDs[0]
       });
     } else {
-      await octokit.issues.createComment(comment);
+      await octokit.issues.createComment(prComment);
     }
   } catch (error) {
     console.error(error);
   }
 }
+
 export async function printStdout(args: IPrintableReport) {
   const totalTable = getConsoleTotalTable(args);
   const filesBreakdownTable = getFilesBreakDownTable(args);
