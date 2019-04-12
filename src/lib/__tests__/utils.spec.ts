@@ -55,6 +55,7 @@ describe('generating markdown tables', () => {
     const expectedFormat: ITableRow[] = [
       ['jpg', '1.95KB (🔺 +1.95KB)', '0B'],
       ['js', '1.07KB (🔺 +100B)', '1000B'],
+      ['svg', '150B', '150B'],
       ['css', '0B (▼ -150B)', '150B']
     ];
 
