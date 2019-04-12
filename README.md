@@ -5,6 +5,10 @@
 
 > Compare the size of build files in two git branches.
 
+![bundle-chercker](https://user-images.githubusercontent.com/6695231/56052681-fa9b7a80-5d49-11e9-9272-0df40920b14e.gif)
+
+
+
 ## Develop and test locally the CLI
 
 ```bash
