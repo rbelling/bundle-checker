@@ -48,7 +48,6 @@ export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
         ] as IAbstractTableRow
     )
     .sort(sortByDelta)
-    .filter(filterDelta)
     .map(([fileName, currentBranchSize, targetBranchSize]: any) => [
       fileName,
       withDeltaSize(targetBranchSize, currentBranchSize),
@@ -128,5 +127,3 @@ const sortByDelta = (a: IAbstractTableRow, b: IAbstractTableRow) => {
   if (bDelta - aDelta < 0) return -1;
   return 0;
 };
-
-const filterDelta = (itemRow: IAbstractTableRow) => (itemRow[1] - itemRow[2] === 0 ? false : true);
