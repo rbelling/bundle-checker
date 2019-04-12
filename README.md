@@ -8,14 +8,6 @@
 ![bundle-chercker](https://user-images.githubusercontent.com/6695231/56052681-fa9b7a80-5d49-11e9-9272-0df40920b14e.gif)
 
 
-
-## Develop and test locally the CLI
-
-```bash
-$ yarn pack
-$ ./bin/run hello
-```
-
 ## Usage
 
 ```bash
@@ -29,7 +21,21 @@ $ npx bundle-checker compare \
         --targetFilesPattern='**/*.js,**/*.css'
 ```
 
-## Result posted as PR comment
+All parameters are optionals, default table:
+
+| Parameter | Default |
+| ------------- | ------------- |
+| buildScript | npm run build |
+| currentBranch | current branch detected |
+| distPath | dist |
+| gitRepository | repo where command is run |
+| installScript | npm install |
+| prComment | false |
+| targetBranch | master |
+| targetFilesPattern | &ast;&ast;/&ast;.js,&ast;&ast;/&ast;.css |
+
+
+## Post result as PR comment
 
 Add `--prComment` to post the results as pr Comment after a CI job.
 
@@ -46,3 +52,12 @@ The command needs 3 env variable set:
 | _GITHUB_TOKEN_ | secret to be setup |
 
 > Travis will obviously provide `TRAVIS_PULL_REQUEST`, `TRAVIS_PULL_REQUEST_SLUG` for you already.
+
+## Develop and test locally the CLI
+
+```bash
+$ yarn pack
+$ ./bin/run compare
+```
+
+> cli scaffoling built with https://github.com/oclif/oclif
