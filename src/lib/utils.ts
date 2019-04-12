@@ -9,6 +9,21 @@ import {
   ITableRow
 } from '../../types/bundle-checker-types';
 
+// TODO: fix types, and make them more robust
+const sortByDelta = (a: Array<string | number>, b: Array<string | number>) => {
+  const bDelta = (b[1] as number) - (b[2] as number);
+  const aDelta = (a[1] as number) - (a[2] as number);
+  if (bDelta - aDelta > 0) return 1;
+  if (bDelta - aDelta < 0) return -1;
+  return 0;
+};
+
+const filterDelta = (itemRow: Array<string | number>) => {
+  const delta = (itemRow[1] as number) - (itemRow[2] as number);
+  if (delta === 0) return false;
+  return true;
+};
+
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
   if (b - a === 0) {
@@ -116,18 +131,3 @@ const getFilesBreakDownTable = ({
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
-
-// TODO: fix types, and make them more robust
-const sortByDelta = (a: Array<string | number>, b: Array<string | number>) => {
-  const bDelta = (b[1] as number) - (b[2] as number);
-  const aDelta = (a[1] as number) - (a[2] as number);
-  if (bDelta - aDelta > 0) return 1;
-  if (bDelta - aDelta < 0) return -1;
-  return 0;
-};
-
-const filterDelta = (itemRow: Array<string | number>) => {
-  const delta = (itemRow[1] as number) - (itemRow[2] as number);
-  if (delta === 0) return false;
-  return true;
-};
