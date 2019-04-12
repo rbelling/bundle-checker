@@ -33,7 +33,7 @@ export interface IConsoleItem {
 }
 export type IConsoleTable = IConsoleItem[];
 
-export interface IPrintStdout {
+export interface IPrintableReport {
   report: IBundleCheckerReport;
   targetBranchName: string;
   currentBranchName: string;

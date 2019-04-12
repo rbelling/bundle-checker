@@ -1,14 +1,8 @@
 import { Command, flags as OclifFlags } from '@oclif/command';
 import { exec as childProcessExec } from 'child_process';
 import * as util from 'util';
-import { ITableRow } from '../../types/bundle-checker-types';
 import BundleChecker from '../lib';
-import {
-  commentOnPr,
-  getFormattedRows,
-  printStdout,
-  squashReportByFileExtension
-} from '../lib/utils';
+import { commentOnPr, printStdout } from '../lib/utils';
 
 const exec = util.promisify(childProcessExec);
 
@@ -19,7 +13,9 @@ export default class Compare extends Command {
   // TODO: Define interface for this.
   public static flags = {
     buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
-    currentBranch: OclifFlags.string({ description: '[default: branch detected] currentBranch' }),
+    currentBranch: OclifFlags.string({
+      description: '[default: branch detected] currentBranch'
+    }),
     distPath: OclifFlags.string({ description: 'distPath', default: 'dist' }),
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
@@ -35,27 +31,13 @@ export default class Compare extends Command {
   public async run() {
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
-    const { currentBranch, targetBranch } = localFlags;
+    const { currentBranch: currentBranchName, targetBranch: targetBranchName } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
-    const overviewReportHeader = ['File name', currentBranch, targetBranch] as ITableRow;
-    const filesBreakDownHeader = ['File extension', currentBranch, targetBranch] as ITableRow;
-
     if (flags.prComment) {
-      await commentOnPr([
-        overviewReportHeader,
-        ...getFormattedRows({
-          currentBranchReport: squashReportByFileExtension(report.currentBranchReport),
-          targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
-        })
-      ]);
-      await commentOnPr([filesBreakDownHeader, ...getFormattedRows(report)]);
+      await commentOnPr({ currentBranchName, report, targetBranchName });
     }
-    await printStdout({
-      currentBranchName: currentBranch,
-      report,
-      targetBranchName: targetBranch
-    });
+    await printStdout({ currentBranchName, report, targetBranchName });
   }
   private async mergeFlagsWithDefaults(flags: any) {
     const defaults = {} as any;
