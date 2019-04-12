@@ -2,27 +2,13 @@ import Github from '@octokit/rest';
 import printBytes from 'bytes';
 import { groupBy, zipObj } from 'ramda';
 import {
+  IAbstractTableRow,
   IBundleCheckerReport,
   IConsoleTable,
   IFileSizeReport,
   IPrintStdout,
   ITableRow
 } from '../../types/bundle-checker-types';
-
-// TODO: fix types, and make them more robust
-const sortByDelta = (a: Array<string | number>, b: Array<string | number>) => {
-  const bDelta = (b[1] as number) - (b[2] as number);
-  const aDelta = (a[1] as number) - (a[2] as number);
-  if (bDelta - aDelta > 0) return 1;
-  if (bDelta - aDelta < 0) return -1;
-  return 0;
-};
-
-const filterDelta = (itemRow: Array<string | number>) => {
-  const delta = (itemRow[1] as number) - (itemRow[2] as number);
-  if (delta === 0) return false;
-  return true;
-};
 
 export function withDeltaSize(a: number = 0, b: number = 0): string {
   const icon = b - a > 0 ? `🔺 +` : `▼ -`;
@@ -53,11 +39,14 @@ export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]:
 
 export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
-    .map(fileName => [
-      fileName,
-      (report.currentBranchReport[fileName] || 0) as number,
-      (report.targetBranchReport[fileName] || 0) as number
-    ])
+    .map(
+      fileName =>
+        [
+          fileName,
+          report.currentBranchReport[fileName] || 0,
+          report.targetBranchReport[fileName] || 0
+        ] as IAbstractTableRow
+    )
     .sort(sortByDelta)
     .filter(filterDelta)
     .map(([fileName, currentBranchSize, targetBranchSize]: any) => [
@@ -131,3 +120,13 @@ const getFilesBreakDownTable = ({
     [currentBranchName]: currentSize,
     [targetBranchName]: targetSize
   }));
+
+const sortByDelta = (a: IAbstractTableRow, b: IAbstractTableRow) => {
+  const bDelta = b[1] - b[2];
+  const aDelta = a[1] - a[2];
+  if (bDelta - aDelta > 0) return 1;
+  if (bDelta - aDelta < 0) return -1;
+  return 0;
+};
+
+const filterDelta = (itemRow: IAbstractTableRow) => (itemRow[1] - itemRow[2] === 0 ? false : true);
