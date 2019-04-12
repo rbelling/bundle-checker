@@ -32,21 +32,21 @@ export default class BundleChecker {
     const { currentBranch, targetBranch } = this.inputParams;
     try {
       await this.init();
-      // --- CURRENT BRANCH
-      this.spinner.indent = 4;
-      this.spinner.info(`Branch: ${currentBranch}`);
-      await this.buildBranch(currentBranch);
-      const currentBranchFilesSizes = await this.getFilesSizes();
-
-      // --- CLEAN
-      this.spinner.indent = 0;
-      await this.cleanDist();
-
       // --- TARGET BRANCH
       this.spinner.indent = 4;
       this.spinner.info(`Branch: ${targetBranch}`);
       await this.buildBranch(targetBranch);
       const targetBranchFilesSizes = await this.getFilesSizes();
+
+      // --- CLEAN
+      this.spinner.indent = 0;
+      await this.cleanDist();
+
+      // --- CURRENT BRANCH
+      this.spinner.indent = 4;
+      this.spinner.info(`Branch: ${currentBranch}`);
+      await this.buildBranch(currentBranch);
+      const currentBranchFilesSizes = await this.getFilesSizes();
       report = {
         currentBranchReport: currentBranchFilesSizes,
         targetBranchReport: targetBranchFilesSizes
