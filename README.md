@@ -7,6 +7,12 @@
 
 ![bundle-chercker](https://user-images.githubusercontent.com/6695231/56052681-fa9b7a80-5d49-11e9-9272-0df40920b14e.gif)
 
+Summary:
+
+- [Usage](#Usage)
+- [Post result as PR comment](#Post-result-as-PR-comment)
+- [Develop and test locally the CLI](#Develop-and-test-locally-the-CLI)
+
 ## Usage
 
 ```bash
@@ -20,7 +26,7 @@ $ npx bundle-checker compare \
         --targetFilesPattern='**/*.js,**/*.css'
 ```
 
-All parameters are optionals, default table:
+All parameters are optionals, defaults:
 
 | Parameter          | Default                   |
 | ------------------ | ------------------------- |
