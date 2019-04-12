@@ -13,15 +13,15 @@ export default class Compare extends Command {
   // TODO: Define interface for this.
   public static flags = {
     buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
-    currentBranchName: OclifFlags.string({
-      description: '[default: branch detected] currentBranchName'
+    currentBranch: OclifFlags.string({
+      description: '[default: branch detected] currentBranch'
     }),
     distPath: OclifFlags.string({ description: 'distPath', default: 'dist' }),
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
     installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
     prComment: OclifFlags.boolean({ description: 'Comment on PR', default: false }),
-    targetBranchName: OclifFlags.string({ description: 'targetBranchName', default: 'master' }),
+    targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' }),
     targetFilesPattern: OclifFlags.string({
       default: '**/*.js,**/*.css',
       description: 'targetFilesPattern',
@@ -31,7 +31,7 @@ export default class Compare extends Command {
   public async run() {
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
-    const { currentBranchName, targetBranchName } = localFlags;
+    const { currentBranch: currentBranchName, targetBranch: targetBranchName } = localFlags;
     const checker = new BundleChecker(localFlags);
     const report = await checker.compare();
     if (flags.prComment) {
@@ -41,9 +41,9 @@ export default class Compare extends Command {
   }
   private async mergeFlagsWithDefaults(flags: any) {
     const defaults = {} as any;
-    if (!flags.currentBranchName) {
+    if (!flags.currentBranch) {
       const { stdout } = await exec('git rev-parse --abbrev-ref HEAD');
-      defaults.currentBranchName = stdout.trim();
+      defaults.currentBranch = stdout.trim();
     }
     return { ...defaults, ...flags, targetFilesPattern: flags.targetFilesPattern.split(',') };
   }
