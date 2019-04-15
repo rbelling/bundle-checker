@@ -44,6 +44,10 @@ export default class Compare extends Command {
       const { stdout } = await exec('git rev-parse --abbrev-ref HEAD');
       defaults.currentBranch = stdout.trim();
     }
-    return { ...defaults, ...flags, buildFilesPatterns: flags.buildFilesPatterns.split(',') };
+    return {
+      ...defaults,
+      ...flags,
+      buildFilesPatterns: flags.buildFilesPatterns.replace(/\s/g, '').split(',')
+    };
   }
 }
