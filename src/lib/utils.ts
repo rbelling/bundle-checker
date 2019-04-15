@@ -91,7 +91,7 @@ export async function commentOnPr({
   const wrapInCollapsible = (
     content: string,
     collapsibleHeader: string = 'Details of bundled changes'
-  ) => `<details><summary>${collapsibleHeader}</summary>${content}</details>`;
+  ) => `<details><summary>${collapsibleHeader}</summary>\n\n${content}</details>`;
   const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
     [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
     ...getFormattedRows({
