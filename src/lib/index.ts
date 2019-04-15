@@ -60,9 +60,11 @@ export default class BundleChecker {
   }
 
   private async init() {
+    this.workDir = await fs.realpathSync(process.cwd());
     if (this.inputParams.gitRepository) {
       this.workDir = this.generateWorkDirName();
       await exec(`mkdir -p ${this.workDir}`);
+      this.workDir = await fs.realpathSync(this.workDir);
       process.chdir(this.workDir);
       const { stdout } = await exec(`pwd`);
       this.spinner.info(`Working Directory: ${stdout.trim()}`);
@@ -106,18 +108,13 @@ export default class BundleChecker {
     this.spinner.start(
       `Calculating sizes of files matching: \`${this.inputParams.buildFilesPatterns}\``
     );
-
     const targetedFiles = await this.getTargetedFiles(this.inputParams.buildFilesPatterns);
-
     const fileSizes: number[] = await Promise.all(
       targetedFiles.map(file => this.safeGetSize([file]))
     );
-
+    const filePaths = targetedFiles.map(file => file.replace(this.workDir, ''));
     this.spinner.succeed();
-    return zipObj(
-      targetedFiles.map(file => file.split(this.workDir).pop()) as ReadonlyArray<string>,
-      fileSizes
-    );
+    return zipObj(filePaths, fileSizes);
   }
 
   private async getTargetedFiles(regex: string[]): Promise<string[]> {
@@ -130,10 +127,7 @@ export default class BundleChecker {
 
   private async cleanDist() {
     this.spinner.start(`Cleaning dist`);
-    const targetedFiles = await this.getTargetedFiles(this.inputParams.buildFilesPatterns);
-    for (const file of targetedFiles) {
-      fs.unlinkSync(file);
-    }
+    (await this.getTargetedFiles(this.inputParams.buildFilesPatterns)).map(fs.unlinkSync);
     this.spinner.succeed();
   }
 

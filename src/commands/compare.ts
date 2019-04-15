@@ -13,7 +13,7 @@ export default class Compare extends Command {
   // TODO: Define interface for this.
   public static flags = {
     buildFilesPatterns: OclifFlags.string({
-      default: 'dist/**/*.js,dist/**/*.css',
+      default: 'build/**/*.js,build/**/*.css',
       description: 'buildFilesPatterns',
       required: true
     }),

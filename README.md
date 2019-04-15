@@ -24,20 +24,20 @@ $ npx bundle-checker compare \
         --buildScript='yarn build:es' \
         --currentBranch='CrossEye-patch-1' \
         --targetBranch='master' \
-        --buildFilesPatterns='dist/**/*.js,dist/**/*.css'
+        --buildFilesPatterns='build/**/*.js,build/**/*.css'
 ```
 
 All parameters are optionals, defaults:
 
-| Parameter          | Default                          |
-| ------------------ | -------------------------------- |
-| buildScript        | npm run build                    |
-| currentBranch      | current branch detected          |
-| gitRepository      | repo where command is run        |
-| installScript      | npm install                      |
-| prComment          | false                            |
-| targetBranch       | master                           |
-| buildFilesPatterns | dist/\*\*/\*.js,dist/\*\*/\*.css |
+| Parameter          | Default                            |
+| ------------------ | ---------------------------------- |
+| buildScript        | npm run build                      |
+| currentBranch      | current branch detected            |
+| gitRepository      | repo where command is run          |
+| installScript      | npm install                        |
+| prComment          | false                              |
+| targetBranch       | master                             |
+| buildFilesPatterns | build/\*\*/\*.js,build/\*\*/\*.css |
 
 ## Post result as PR comment
 
