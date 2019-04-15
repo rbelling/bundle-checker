@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/rbelling/bundle-checker.png)](https://travis-ci.org/rbelling/bundle-checker)
 [![NPM Version](https://img.shields.io/npm/v/bundle-checker.svg)](https://www.npmjs.com/package/bundle-checker)
-
+[![TypeScript](https://badges.frapsoft.com/typescript/code/typescript.svg?v=101)](https://github.com/ellerbrock/typescript-badges/)
 
 # bundle-checker
 
