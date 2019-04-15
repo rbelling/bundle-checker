@@ -6,8 +6,6 @@ export interface IBundleCheckerReport {
 export interface IBundleCheckerParams {
   // The build script that will be run as part of the bundle checker.
   buildScript: string;
-  // Optional distPath represents the dist folder. If present, all of the targetFilesPattern globs will be prepended with this
-  distPath: string;
   // The install script that downloads and install dependencies before the build can start.
   installScript: string;
   // Byte-size limit of parsed code (non-gzipped)
@@ -40,3 +38,10 @@ export interface IPrintableReport {
 }
 
 export type IAbstractTableRow = [string, number, number];
+
+export interface IGetExistingCommentId {
+  auth: string;
+  number: number;
+  owner: string;
+  repo: string;
+}

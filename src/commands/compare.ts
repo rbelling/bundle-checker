@@ -16,14 +16,13 @@ export default class Compare extends Command {
     currentBranch: OclifFlags.string({
       description: '[default: branch detected] currentBranch'
     }),
-    distPath: OclifFlags.string({ description: 'distPath', default: 'dist' }),
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
     installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
     prComment: OclifFlags.boolean({ description: 'Comment on PR', default: false }),
     targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' }),
     targetFilesPattern: OclifFlags.string({
-      default: '**/*.js,**/*.css',
+      default: 'dist/**/*.js,dist/**/*.css',
       description: 'targetFilesPattern',
       required: true
     })

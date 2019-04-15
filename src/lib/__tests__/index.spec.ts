@@ -8,7 +8,6 @@ const TEST_BRANCH = 'TEST_BRANCH_DO_NOT_DELETE';
 const dummyParams: IBundleCheckerParams = {
   buildScript: 'yarn build',
   currentBranch: TEST_BRANCH,
-  distPath: 'build',
   gitRepository: 'https://github.com/rbelling/bundle-checker.git',
   installScript: 'yarn',
   targetBranch: TEST_BRANCH,

@@ -1,4 +1,5 @@
 import { exec as childProcessExec } from 'child_process';
+import fs from 'fs';
 import globby from 'globby';
 import ora from 'ora';
 import * as path from 'path';
@@ -38,13 +39,12 @@ export default class BundleChecker {
       await this.buildBranch(targetBranch);
       const targetBranchFilesSizes = await this.getFilesSizes();
 
-      // --- CLEAN
       this.spinner.indent = 0;
-      await this.cleanDist();
 
       // --- CURRENT BRANCH
       this.spinner.indent = 4;
       this.spinner.info(`Branch: ${currentBranch}`);
+      await this.cleanDist();
       await this.buildBranch(currentBranch);
       const currentBranchFilesSizes = await this.getFilesSizes();
       report = {
@@ -107,9 +107,7 @@ export default class BundleChecker {
       `Calculating sizes of files matching: \`${this.inputParams.targetFilesPattern}\``
     );
 
-    const targetedFiles = await this.getTargetedFiles(
-      this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
-    );
+    const targetedFiles = await this.getTargetedFiles(this.inputParams.targetFilesPattern);
 
     const fileSizes: number[] = await Promise.all(
       targetedFiles.map(file => this.safeGetSize([file]))
@@ -132,7 +130,12 @@ export default class BundleChecker {
 
   private async cleanDist() {
     this.spinner.start(`Cleaning dist`);
-    await this.safeDeleteFolder(path.resolve(this.workDir, this.inputParams.distPath));
+    const targetedFiles = await this.getTargetedFiles(this.inputParams.targetFilesPattern);
+    console.log('cleanDist', targetedFiles);
+    for (const file of targetedFiles) {
+      console.log('removing ', file);
+      fs.unlinkSync(file);
+    }
     this.spinner.succeed();
   }
 
