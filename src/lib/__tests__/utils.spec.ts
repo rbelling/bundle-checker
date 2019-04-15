@@ -27,10 +27,10 @@ describe('generating markdown tables', () => {
       'font-italic.123716.woff'
     ];
     const expectedGrouping = {
-      css: ['main.css', 'shared.css'],
-      js: ['main.js', 'shared.js'],
-      png: ['sprite.png'],
-      woff: ['font.woff', 'font-italic.123716.woff']
+      '.css': ['main.css', 'shared.css'],
+      '.js': ['main.js', 'shared.js'],
+      '.png': ['sprite.png'],
+      '.woff': ['font.woff', 'font-italic.123716.woff']
     };
 
     expect(groupFilesByExtension(targetedFiles)).toMatchObject(expectedGrouping);
@@ -43,20 +43,20 @@ describe('generating markdown tables', () => {
 
   it('Creates rows for total size report in the expected format', () => {
     const targetBranchReport: IFileSizeReport = {
-      css: 150,
-      js: 1000,
-      svg: 150
+      '.css': 150,
+      '.js': 1000,
+      '.svg': 150
     };
     const currentBranchReport: IFileSizeReport = {
-      jpg: 2000,
-      js: 1100,
-      svg: 150
+      '.jpg': 2000,
+      '.js': 1100,
+      '.svg': 150
     };
     const expectedFormat: ITableRow[] = [
-      ['jpg', '1.95KB (🔺 +1.95KB)', '0B'],
-      ['js', '1.07KB (🔺 +100B)', '1000B'],
-      ['svg', '150B', '150B'],
-      ['css', '0B (▼ -150B)', '150B']
+      ['.jpg', '1.95KB (🔺 +1.95KB)', '0B'],
+      ['.js', '1.07KB (🔺 +100B)', '1000B'],
+      ['.svg', '150B', '150B'],
+      ['.css', '0B (▼ -150B)', '150B']
     ];
 
     expect(getFormattedRows({ targetBranchReport, currentBranchReport })).toEqual(expectedFormat);
@@ -71,9 +71,9 @@ describe('generating markdown tables', () => {
       'e.jpeg': 2000
     };
     const expectedOutput = {
-      css: 4500,
-      jpeg: 2000,
-      js: 3000
+      '.css': 4500,
+      '.jpeg': 2000,
+      '.js': 3000
     };
 
     expect(squashReportByFileExtension(input)).toMatchObject(expectedOutput);

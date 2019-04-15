@@ -1,5 +1,6 @@
 import Github from '@octokit/rest';
 import printBytes from 'bytes';
+import path from 'path';
 import { groupBy, zipObj } from 'ramda';
 import {
   IAbstractTableRow,
@@ -41,11 +42,9 @@ export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): s
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
 
-export const getFileExtension = (fileName: string) => fileName.split('.').pop() || 'No extension';
-
 export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]: string[] } =>
   groupBy((current: string) => {
-    return getFileExtension(current);
+    return path.extname(current);
   })(targetedFiles);
 
 export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
@@ -75,7 +74,7 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
 
   return zipObj(keysGroupedByExtension, keysGroupedByExtension.map(fileExtension =>
     Object.keys(report)
-      .filter(file => getFileExtension(file) === fileExtension)
+      .filter(file => path.extname(file) === fileExtension)
       .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
   ) as ReadonlyArray<number>);
 };
