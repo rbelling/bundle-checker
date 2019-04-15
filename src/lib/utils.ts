@@ -105,12 +105,15 @@ export async function commentOnPr({
   )}`;
 
   try {
-    const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
-    const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+    const PULL_REQUEST_NUMBER = process.env.TRAVIS_PULL_REQUEST as number;
+    const PULL_REQUEST_SLUG = process.env.TRAVIS_PULL_REQUEST_SLUG;
+
+    const [owner, repo] = PULL_REQUEST_SLUG.split('/');
     const octokit = new Github({ auth: GITHUB_TOKEN });
     const body = `${overviewTable}\n\n${filesBreakDownTable}\n\n${COMMENT_WATERMARK}`;
     const githubParams = {
-      number: TRAVIS_PULL_REQUEST,
+      number: PULL_REQUEST_NUMBER,
       owner,
       repo
     };
