@@ -42,10 +42,7 @@ export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): s
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
 
-export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]: string[] } =>
-  groupBy((current: string) => {
-    return path.extname(current);
-  })(targetedFiles);
+export const groupFilesByExtension = groupBy(path.extname);
 
 export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
@@ -58,7 +55,7 @@ export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
         ] as IAbstractTableRow
     )
     .sort(sortByDelta)
-    .map(([fileName, currentBranchSize, targetBranchSize]: any) => [
+    .map(([fileName, currentBranchSize, targetBranchSize]: IAbstractTableRow) => [
       fileName,
       withDeltaSize(targetBranchSize, currentBranchSize),
       printBytes(targetBranchSize)
@@ -69,7 +66,7 @@ export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
  */
 export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeReport => {
   const keysGroupedByExtension = Object.keys(
-    groupFilesByExtension(Object.keys(report))
+    groupFilesByExtension(Object.keys(report) as ReadonlyArray<string>)
   ) as ReadonlyArray<string>;
 
   return zipObj(keysGroupedByExtension, keysGroupedByExtension.map(fileExtension =>
