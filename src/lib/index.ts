@@ -131,9 +131,7 @@ export default class BundleChecker {
   private async cleanDist() {
     this.spinner.start(`Cleaning dist`);
     const targetedFiles = await this.getTargetedFiles(this.inputParams.targetFilesPattern);
-    console.log('cleanDist', targetedFiles);
     for (const file of targetedFiles) {
-      console.log('removing ', file);
       fs.unlinkSync(file);
     }
     this.spinner.succeed();
