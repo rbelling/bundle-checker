@@ -87,7 +87,7 @@ export async function commentOnPr({
   const wrapInCollapsible = (
     content: string,
     collapsibleHeader: string = 'Details of bundled changes'
-  ) => `<details><summary>${collapsibleHeader}</summary>\n\n${content}</details>`;
+  ) => `<details><summary>${collapsibleHeader}</summary>\n\n${content}\n\n</details>`;
   const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
     [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
     ...getFormattedRows({
@@ -95,14 +95,12 @@ export async function commentOnPr({
       targetBranchReport: squashReportByFileExtension(report.targetBranchReport)
     })
   ])}`;
-  const filesBreakDownTable = `### ${
-    SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE
-  }\n${wrapInCollapsible(
-    createMarkdownTable([
+  const filesBreakDownTable = wrapInCollapsible(
+    `### ${SHARED_TABLE_VALUES.FILES_BREAKDOWN_TITLE}\n${createMarkdownTable([
       [SHARED_TABLE_VALUES.FILE_NAME, currentBranchName, targetBranchName],
       ...getFormattedRows(report)
-    ])
-  )}`;
+    ])}`
+  );
 
   try {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
