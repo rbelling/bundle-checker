@@ -10,8 +10,8 @@ export interface IBundleCheckerParams {
   installScript: string;
   // Byte-size limit of parsed code (non-gzipped)
   sizeLimit?: number;
-  // An array of patterns that is used to target distribution files.
-  targetFilesPattern: string[];
+  // An array of patterns that is used to target build files.
+  buildFilesPatterns: string[];
   // Github repo to clone and analyze
   gitRepository: string;
   currentBranch: string;

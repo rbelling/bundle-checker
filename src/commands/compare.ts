@@ -12,6 +12,11 @@ export default class Compare extends Command {
 
   // TODO: Define interface for this.
   public static flags = {
+    buildFilesPatterns: OclifFlags.string({
+      default: 'dist/**/*.js,dist/**/*.css',
+      description: 'buildFilesPatterns',
+      required: true
+    }),
     buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
     currentBranch: OclifFlags.string({
       description: '[default: branch detected] currentBranch'
@@ -20,12 +25,7 @@ export default class Compare extends Command {
     help: OclifFlags.help({ char: 'h' }),
     installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
     prComment: OclifFlags.boolean({ description: 'Comment on PR', default: false }),
-    targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' }),
-    targetFilesPattern: OclifFlags.string({
-      default: 'dist/**/*.js,dist/**/*.css',
-      description: 'targetFilesPattern',
-      required: true
-    })
+    targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' })
   };
   public async run() {
     const { flags } = this.parse(Compare);
@@ -44,6 +44,6 @@ export default class Compare extends Command {
       const { stdout } = await exec('git rev-parse --abbrev-ref HEAD');
       defaults.currentBranch = stdout.trim();
     }
-    return { ...defaults, ...flags, targetFilesPattern: flags.targetFilesPattern.split(',') };
+    return { ...defaults, ...flags, buildFilesPatterns: flags.buildFilesPatterns.split(',') };
   }
 }

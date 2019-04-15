@@ -100,14 +100,14 @@ export default class BundleChecker {
   }
 
   /**
-   * Returns a list of each files (in a single branch) that are matched by IBundleCheckerParams.targetFilesPattern
+   * Returns a list of each files (in a single branch) that are matched by IBundleCheckerParams.buildFilesPatterns
    */
   private async getFilesSizes(): Promise<IFileSizeReport> {
     this.spinner.start(
-      `Calculating sizes of files matching: \`${this.inputParams.targetFilesPattern}\``
+      `Calculating sizes of files matching: \`${this.inputParams.buildFilesPatterns}\``
     );
 
-    const targetedFiles = await this.getTargetedFiles(this.inputParams.targetFilesPattern);
+    const targetedFiles = await this.getTargetedFiles(this.inputParams.buildFilesPatterns);
 
     const fileSizes: number[] = await Promise.all(
       targetedFiles.map(file => this.safeGetSize([file]))
@@ -130,7 +130,7 @@ export default class BundleChecker {
 
   private async cleanDist() {
     this.spinner.start(`Cleaning dist`);
-    const targetedFiles = await this.getTargetedFiles(this.inputParams.targetFilesPattern);
+    const targetedFiles = await this.getTargetedFiles(this.inputParams.buildFilesPatterns);
     for (const file of targetedFiles) {
       fs.unlinkSync(file);
     }
