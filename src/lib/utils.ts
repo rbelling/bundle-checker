@@ -1,5 +1,6 @@
 import Github from '@octokit/rest';
 import printBytes from 'bytes';
+import path from 'path';
 import { groupBy, zipObj } from 'ramda';
 import {
   IAbstractTableRow,
@@ -41,12 +42,7 @@ export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): s
   return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
 }
 
-export const getFileExtension = (fileName: string) => fileName.split('.').pop() || 'No extension';
-
-export const groupFilesByExtension = (targetedFiles: string[]): { [key: string]: string[] } =>
-  groupBy((current: string) => {
-    return getFileExtension(current);
-  })(targetedFiles);
+export const groupFilesByExtension = groupBy(path.extname);
 
 export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
   Object.keys({ ...report.targetBranchReport, ...report.currentBranchReport })
@@ -59,7 +55,7 @@ export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
         ] as IAbstractTableRow
     )
     .sort(sortByDelta)
-    .map(([fileName, currentBranchSize, targetBranchSize]: any) => [
+    .map(([fileName, currentBranchSize, targetBranchSize]: IAbstractTableRow) => [
       fileName,
       withDeltaSize(targetBranchSize, currentBranchSize),
       printBytes(targetBranchSize)
@@ -70,12 +66,12 @@ export const getFormattedRows = (report: IBundleCheckerReport): ITableRow[] =>
  */
 export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeReport => {
   const keysGroupedByExtension = Object.keys(
-    groupFilesByExtension(Object.keys(report))
+    groupFilesByExtension(Object.keys(report) as ReadonlyArray<string>)
   ) as ReadonlyArray<string>;
 
   return zipObj(keysGroupedByExtension, keysGroupedByExtension.map(fileExtension =>
     Object.keys(report)
-      .filter(file => getFileExtension(file) === fileExtension)
+      .filter(file => path.extname(file) === fileExtension)
       .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
   ) as ReadonlyArray<number>);
 };
@@ -109,12 +105,18 @@ export async function commentOnPr({
   )}`;
 
   try {
-    const { GITHUB_TOKEN, TRAVIS_PULL_REQUEST, TRAVIS_PULL_REQUEST_SLUG } = process.env as any;
-    const [owner, repo] = TRAVIS_PULL_REQUEST_SLUG.split('/');
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+    const PULL_REQUEST_NUMBER = Number(
+      process.env.TRAVIS_PULL_REQUEST || process.env.PULL_REQUEST_NUMBER
+    );
+    const PULL_REQUEST_SLUG =
+      process.env.TRAVIS_PULL_REQUEST_SLUG || process.env.PULL_REQUEST_SLUG || '';
+
+    const [owner, repo] = PULL_REQUEST_SLUG.split('/');
     const octokit = new Github({ auth: GITHUB_TOKEN });
     const body = `${overviewTable}\n\n${filesBreakDownTable}\n\n${COMMENT_WATERMARK}`;
     const githubParams = {
-      number: TRAVIS_PULL_REQUEST,
+      number: PULL_REQUEST_NUMBER,
       owner,
       repo
     };

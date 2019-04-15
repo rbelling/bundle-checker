@@ -51,11 +51,12 @@ The command needs 3 env variable set:
 
 | var                        | Desc                   |
 | -------------------------- | ---------------------- |
-| _TRAVIS_PULL_REQUEST_      | Number of pull request |
-| _TRAVIS_PULL_REQUEST_SLUG_ | _nodejs/node_          |
+| _PULL_REQUEST_NUMBER_      | Number of pull request |
+| _PULL_REQUEST_SLUG_        | e.g. _facebook/react_  |
 | _GITHUB_TOKEN_             | secret to be setup     |
 
-> Travis will obviously provide `TRAVIS_PULL_REQUEST`, `TRAVIS_PULL_REQUEST_SLUG` for you already.
+> If you're working with Travis, no need to setup env variables `PULL_REQUEST_NUMBER` or `PULL_REQUEST_SLUG`. 
+Those are read from `TRAVIS_PULL_REQUEST` and `TRAVIS_PULL_REQUEST_SLUG` automatically.
 
 ## Develop and test locally the CLI
 

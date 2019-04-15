@@ -109,12 +109,10 @@ export default class BundleChecker {
       `Calculating sizes of files matching: \`${this.inputParams.buildFilesPatterns}\``
     );
     const targetedFiles = await this.getTargetedFiles(this.inputParams.buildFilesPatterns);
-    const fileSizes: number[] = await Promise.all(
-      targetedFiles.map(file => this.safeGetSize([file]))
-    );
+    const fileSizes: number[] = await Promise.all(targetedFiles.map(this.safeGetSize));
     const filePaths = targetedFiles.map(file => file.replace(this.workDir, ''));
     this.spinner.succeed();
-    return zipObj(filePaths, fileSizes);
+    return zipObj(filePaths as ReadonlyArray<string>, fileSizes);
   }
 
   private async getTargetedFiles(regex: string[]): Promise<string[]> {
