@@ -105,9 +105,12 @@ export async function commentOnPr({
   )}`;
 
   try {
-    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-    const PULL_REQUEST_NUMBER = process.env.TRAVIS_PULL_REQUEST as number;
-    const PULL_REQUEST_SLUG = process.env.TRAVIS_PULL_REQUEST_SLUG;
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+    const PULL_REQUEST_NUMBER = Number(
+      process.env.TRAVIS_PULL_REQUEST || process.env.PULL_REQUEST_NUMBER
+    );
+    const PULL_REQUEST_SLUG =
+      process.env.TRAVIS_PULL_REQUEST_SLUG || process.env.PULL_REQUEST_SLUG || '';
 
     const [owner, repo] = PULL_REQUEST_SLUG.split('/');
     const octokit = new Github({ auth: GITHUB_TOKEN });
