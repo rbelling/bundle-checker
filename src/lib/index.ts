@@ -1,4 +1,5 @@
 import { exec as childProcessExec } from 'child_process';
+import fs from 'fs';
 import globby from 'globby';
 import ora from 'ora';
 import * as path from 'path';
@@ -38,13 +39,12 @@ export default class BundleChecker {
       await this.buildBranch(targetBranch);
       const targetBranchFilesSizes = await this.getFilesSizes();
 
-      // --- CLEAN
       this.spinner.indent = 0;
-      await this.cleanDist();
 
       // --- CURRENT BRANCH
       this.spinner.indent = 4;
       this.spinner.info(`Branch: ${currentBranch}`);
+      await this.cleanDist();
       await this.buildBranch(currentBranch);
       const currentBranchFilesSizes = await this.getFilesSizes();
       report = {
@@ -60,9 +60,11 @@ export default class BundleChecker {
   }
 
   private async init() {
+    this.workDir = await fs.realpathSync(process.cwd());
     if (this.inputParams.gitRepository) {
       this.workDir = this.generateWorkDirName();
       await exec(`mkdir -p ${this.workDir}`);
+      this.workDir = await fs.realpathSync(this.workDir);
       process.chdir(this.workDir);
       const { stdout } = await exec(`pwd`);
       this.spinner.info(`Working Directory: ${stdout.trim()}`);
@@ -100,26 +102,19 @@ export default class BundleChecker {
   }
 
   /**
-   * Returns a list of each files (in a single branch) that are matched by IBundleCheckerParams.targetFilesPattern
+   * Returns a list of each files (in a single branch) that are matched by IBundleCheckerParams.buildFilesPatterns
    */
   private async getFilesSizes(): Promise<IFileSizeReport> {
     this.spinner.start(
-      `Calculating sizes of files matching: \`${this.inputParams.targetFilesPattern}\``
+      `Calculating sizes of files matching: \`${this.inputParams.buildFilesPatterns}\``
     );
-
-    const targetedFiles = await this.getTargetedFiles(
-      this.inputParams.targetFilesPattern.map(_ => path.resolve(this.inputParams.distPath, _))
-    );
-
+    const targetedFiles = await this.getTargetedFiles(this.inputParams.buildFilesPatterns);
     const fileSizes: number[] = await Promise.all(
       targetedFiles.map(file => this.safeGetSize([file]))
     );
-
+    const filePaths = targetedFiles.map(file => file.replace(this.workDir, ''));
     this.spinner.succeed();
-    return zipObj(
-      targetedFiles.map(file => file.split(this.workDir).pop()) as ReadonlyArray<string>,
-      fileSizes
-    );
+    return zipObj(filePaths, fileSizes);
   }
 
   private async getTargetedFiles(regex: string[]): Promise<string[]> {
@@ -132,7 +127,7 @@ export default class BundleChecker {
 
   private async cleanDist() {
     this.spinner.start(`Cleaning dist`);
-    await this.safeDeleteFolder(path.resolve(this.workDir, this.inputParams.distPath));
+    (await this.getTargetedFiles(this.inputParams.buildFilesPatterns)).map(fs.unlinkSync);
     this.spinner.succeed();
   }
 

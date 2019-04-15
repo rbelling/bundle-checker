@@ -7,8 +7,7 @@ script:
   - yarn test
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then yarn pack; fi'
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then ./bin/run compare --prComment --gitRepository="https://github.com/rbelling/bundle-checker.git"
-    --installScript="yarn" --buildScript="yarn build" --currentBranch=$TRAVIS_PULL_REQUEST_BRANCH
-    --distPath="build" --targetBranch=$TRAVIS_BRANCH; fi'
+    --installScript="yarn" --buildScript="yarn build" --currentBranch=$TRAVIS_PULL_REQUEST_BRANCH --targetBranch=$TRAVIS_BRANCH; fi'
 deploy:
   provider: npm
   email: riccardo.bellingeri@gmail.com

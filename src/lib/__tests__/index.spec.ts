@@ -6,13 +6,12 @@ const TEN_MINUTES = 10 * 60 * 1000;
 
 const TEST_BRANCH = 'TEST_BRANCH_DO_NOT_DELETE';
 const dummyParams: IBundleCheckerParams = {
+  buildFilesPatterns: ['build/**/*.js'],
   buildScript: 'yarn build',
   currentBranch: TEST_BRANCH,
-  distPath: 'build',
   gitRepository: 'https://github.com/rbelling/bundle-checker.git',
   installScript: 'yarn',
-  targetBranch: TEST_BRANCH,
-  targetFilesPattern: ['**/*.js']
+  targetBranch: TEST_BRANCH
 };
 
 describe('Bundle Checker', () => {
