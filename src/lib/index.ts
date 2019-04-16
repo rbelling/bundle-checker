@@ -11,6 +11,7 @@ import {
   IBundleCheckerReport,
   IFileSizeReport
 } from '../../types/bundle-checker-types';
+import { normalizeSlugsInFileNames } from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -37,7 +38,7 @@ export default class BundleChecker {
       this.spinner.indent = 4;
       this.spinner.info(`Branch: ${targetBranch}`);
       await this.buildBranch(targetBranch);
-      const targetBranchFilesSizes = await this.getFilesSizes();
+      const targetBranchReport = normalizeSlugsInFileNames(await this.getSingleBranchReport());
 
       this.spinner.indent = 0;
 
@@ -46,10 +47,11 @@ export default class BundleChecker {
       this.spinner.info(`Branch: ${currentBranch}`);
       await this.cleanDist();
       await this.buildBranch(currentBranch);
-      const currentBranchFilesSizes = await this.getFilesSizes();
+      const currentBranchReport = normalizeSlugsInFileNames(await this.getSingleBranchReport());
+
       report = {
-        currentBranchReport: currentBranchFilesSizes,
-        targetBranchReport: targetBranchFilesSizes
+        currentBranchReport,
+        targetBranchReport
       };
     } catch (e) {
       this.spinner.fail(e);
@@ -102,9 +104,9 @@ export default class BundleChecker {
   }
 
   /**
-   * Returns a list of each files (in a single branch) that are matched by IBundleCheckerParams.buildFilesPatterns
+   * From whatever the current branch is, returns a list of each files that are matched by `buildFilesPatterns`
    */
-  private async getFilesSizes(): Promise<IFileSizeReport> {
+  private async getSingleBranchReport(): Promise<IFileSizeReport> {
     this.spinner.start(
       `Calculating sizes of files matching: \`${this.inputParams.buildFilesPatterns}\``
     );

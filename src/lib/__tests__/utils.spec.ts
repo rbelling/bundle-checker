@@ -3,6 +3,7 @@ import {
   createMarkdownTable,
   getFormattedRows,
   groupFilesByExtension,
+  normalizeSlugsInFileNames,
   squashReportByFileExtension,
   withDeltaSize
 } from '../utils';
@@ -77,5 +78,24 @@ describe('generating markdown tables', () => {
     };
 
     expect(squashReportByFileExtension(input)).toMatchObject(expectedOutput);
+  });
+
+  it('Is able to replace an ellipsis to the second-to-last slug of a file name, unless its `.min`', () => {
+    const input = {
+      '/build/commands/a.1fasd123.js': 2550,
+      '/build/lib/utils.3gaqd329.js': 3037,
+      '/build/z/nohash.js': 150,
+      '/build/z/shared.min.js': 300,
+      '/build/z/slugs.another.123123123.js': 300
+    };
+    const expectedOutput = {
+      '/build/commands/a.[…].js': 2550,
+      '/build/lib/utils.[…].js': 3037,
+      '/build/z/nohash.js': 150,
+      '/build/z/shared.min.js': 300,
+      '/build/z/slugs.another.[…].js': 300
+    };
+
+    expect(normalizeSlugsInFileNames(input)).toMatchObject(expectedOutput);
   });
 });
