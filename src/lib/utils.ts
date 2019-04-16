@@ -76,18 +76,30 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   ) as ReadonlyArray<number>);
 };
 
-export const stripHashFromFileNames = (report: IFileSizeReport): IFileSizeReport => {
-  const HASH_REPLACEMENT = '[HASH]';
+/**
+ * Attempts to normalize file names by replacing the last slug before file extension (most-likely a webpack hash)
+ * with an ellipsis, unless it's `.min`.
+ * @param report
+ */
+export const normalizeSlugsInFileNames = (report: IFileSizeReport): IFileSizeReport => {
+  const ELLIPSIS = '.[…].';
+
+  const normalizedKeys = Object.keys(report).map((fileName: string) => {
+    const fileNameSlugs = path.parse(fileName).name.split('.');
+    const acceptancePredicates: Array<(_: string[]) => boolean> = [
+      // Are there at least 2 slugs?
+      _ => _.length > 1,
+      // Is the last slug different from `min`?
+      _ => _.slice(-1)[0] !== 'min'
+    ];
+
+    return acceptancePredicates.reduce((seq: boolean, fn) => seq && fn(fileNameSlugs), true)
+      ? replace(`.${fileNameSlugs[fileNameSlugs.length - 1]}.`, ELLIPSIS, fileName)
+      : fileName;
+  });
+
   return zipObj(
-    Object.keys(report).map((fileName: string) => {
-      const slugs = path.parse(fileName).name.split('.');
-      if (slugs.length > 1) {
-        const hash = slugs[slugs.length - 1];
-        // Todo: add additional checks here to determine if this is really a hash
-        return replace(hash, HASH_REPLACEMENT, fileName);
-      }
-      return fileName;
-    }) as ReadonlyArray<string>,
+    normalizedKeys as ReadonlyArray<string>,
     Object.values(report) as ReadonlyArray<number>
   );
 };
