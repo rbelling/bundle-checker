@@ -1,7 +1,7 @@
 import Github from '@octokit/rest';
 import printBytes from 'bytes';
 import path from 'path';
-import { groupBy, zipObj } from 'ramda';
+import { groupBy, replace, zipObj } from 'ramda';
 import {
   IAbstractTableRow,
   IBundleCheckerReport,
@@ -74,6 +74,22 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
       .filter(file => path.extname(file) === fileExtension)
       .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
   ) as ReadonlyArray<number>);
+};
+
+export const stripHashFromFileNames = (report: IFileSizeReport): IFileSizeReport => {
+  const HASH_REPLACEMENT = '[HASH]';
+  return zipObj(
+    Object.keys(report).map((fileName: string) => {
+      const slugs = path.parse(fileName).name.split('.');
+      if (slugs.length > 1) {
+        const hash = slugs[slugs.length - 1];
+        // Todo: add additional checks here to determine if this is really a hash
+        return replace(hash, HASH_REPLACEMENT, fileName);
+      }
+      return fileName;
+    }) as ReadonlyArray<string>,
+    Object.values(report) as ReadonlyArray<number>
+  );
 };
 
 /**

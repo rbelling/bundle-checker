@@ -11,6 +11,7 @@ import {
   IBundleCheckerReport,
   IFileSizeReport
 } from '../../types/bundle-checker-types';
+import { stripHashFromFileNames } from './utils';
 const exec = util.promisify(childProcessExec);
 const { error } = console;
 
@@ -48,8 +49,8 @@ export default class BundleChecker {
       await this.buildBranch(currentBranch);
       const currentBranchFilesSizes = await this.getFilesSizes();
       report = {
-        currentBranchReport: currentBranchFilesSizes,
-        targetBranchReport: targetBranchFilesSizes
+        currentBranchReport: stripHashFromFileNames(currentBranchFilesSizes),
+        targetBranchReport: stripHashFromFileNames(targetBranchFilesSizes)
       };
     } catch (e) {
       this.spinner.fail(e);

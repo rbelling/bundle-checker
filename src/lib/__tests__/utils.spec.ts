@@ -4,6 +4,7 @@ import {
   getFormattedRows,
   groupFilesByExtension,
   squashReportByFileExtension,
+  stripHashFromFileNames,
   withDeltaSize
 } from '../utils';
 describe('generating markdown tables', () => {
@@ -77,5 +78,22 @@ describe('generating markdown tables', () => {
     };
 
     expect(squashReportByFileExtension(input)).toMatchObject(expectedOutput);
+  });
+
+  it(`Is able to strip file hash from a filename, if detected`, () => {
+    const input = {
+      '/build/commands/a.1fasd123.js': 2550,
+      '/build/lib/utils.3gaqd329.js': 3037,
+      '/build/z/nohash.js': 150,
+      '/build/z/slugs.another.123123123.js': 300
+    };
+    const expectedOutput = {
+      '/build/commands/a.[HASH].js': 2550,
+      '/build/lib/utils.[HASH].js': 3037,
+      '/build/z/nohash.js': 150,
+      '/build/z/slugs.another.[HASH].js': 300
+    };
+
+    expect(stripHashFromFileNames(input)).toMatchObject(expectedOutput);
   });
 });
