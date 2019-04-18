@@ -32,6 +32,26 @@ export function withDeltaSize(a: number = 0, b: number = 0): string {
 }
 
 export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
+  const escape = (markdownString: string): string => {
+    const replacements = [
+      [/\*/g, '\\*'],
+      [/#/g, '\\#'],
+      [/\//g, '\\/'],
+      [/\(/g, '\\('],
+      [/\)/g, '\\)'],
+      [/\[/g, '\\['],
+      [/\]/g, '\\]'],
+      [/\</g, '&lt;'],
+      [/\>/g, '&gt;'],
+      [/_/g, '\\_']
+    ];
+
+    return replacements.reduce(
+      (sequence, current) => markdownString.replace(current[0], current[1] as string),
+      markdownString
+    );
+  };
+
   const buildHeader = (headers: ITableRow): string =>
     `| ${headers.join(' | ')} |\n` + `| ${headers.map(_ => '---').join(' | ')} |`;
 
@@ -39,7 +59,7 @@ export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): s
 
   const buildRows = (rows: ITableRow[]): string => rows.map(buildRow).join('\n');
 
-  return `${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`;
+  return escape(`${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`);
 }
 
 export const groupFilesByExtension = groupBy(path.extname);

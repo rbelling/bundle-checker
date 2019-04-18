@@ -10,7 +10,10 @@ import {
 describe('generating markdown tables', () => {
   it('build a markdown table with the content given', () => {
     const headers = ['git branch', 'base branch', 'current branch'] as ITableRow;
-    const rows = [['file1.js', '356.6kB', '320KB'], ['file2.css', '320kB', '330KB']] as ITableRow[];
+    const rows = [
+      ['__tests__/file1.spec.js', '356.6kB', '320KB'],
+      ['file2.css', '320kB', '330KB']
+    ] as ITableRow[];
 
     const table = createMarkdownTable([headers, ...rows]);
 
