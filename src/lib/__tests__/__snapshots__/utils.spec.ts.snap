@@ -3,6 +3,6 @@
 exports[`generating markdown tables build a markdown table with the content given 1`] = `
 "| git branch | base branch | current branch |
 | --- | --- | --- |
-| file1.js | 356.6kB | 320KB |
+| \\\\_\\\\_tests\\\\_\\\\_/file1.spec.js | 356.6kB | 320KB |
 | file2.css | 320kB | 330KB |"
 `;
