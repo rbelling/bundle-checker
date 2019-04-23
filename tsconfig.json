@@ -10,7 +10,7 @@
     "outDir": "build",
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext"
+    "target": "es2015"
   },
   "include": ["src", "types"]
 }
