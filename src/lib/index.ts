@@ -13,6 +13,7 @@ import {
 } from '../../types/bundle-checker-types';
 import { normalizeSlugsInFileNames } from './utils';
 const exec = util.promisify(childProcessExec);
+const { error } = console;
 
 export default class BundleChecker {
   private workDir = '';
@@ -52,9 +53,9 @@ export default class BundleChecker {
         currentBranchReport,
         targetBranchReport
       };
-    } catch (error) {
-      this.spinner.fail(error);
-      error(error);
+    } catch (e) {
+      this.spinner.fail(e);
+      error(e);
     }
     await this.destroy();
     return report;
@@ -119,7 +120,7 @@ export default class BundleChecker {
   private async getTargetedFiles(regex: string[]): Promise<string[]> {
     try {
       return await globby(regex.map(item => path.resolve(item)));
-    } catch (error) {
+    } catch {
       return [];
     }
   }
@@ -134,7 +135,7 @@ export default class BundleChecker {
     try {
       // Todo: add `gzip: false` in the options, since we're only intereseted in parsed size
       return (await getSize(files, { webpack: false })).parsed;
-    } catch (error) {
+    } catch {
       return 0;
     }
   }
