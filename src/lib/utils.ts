@@ -153,7 +153,7 @@ export const generateMarkdownReport = ({
  * Posts a comment on a Pull Request, or updates an existing one if found
  */
 export async function commentOnPr(body: string) {
-  const watermarkedBody = `${body}\\n\\n${COMMENT_WATERMARK}`;
+  const watermarkedBody = `${body}\n\n${COMMENT_WATERMARK}`;
   try {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
     const PULL_REQUEST_NUMBER = Number(

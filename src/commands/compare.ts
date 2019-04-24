@@ -34,7 +34,7 @@ export default class Compare extends Command {
     const checker = new BundleChecker(localFlags);
     if (flags.prComment) {
       await commentOnPr(
-        `Please wait while \`bundle-checker\` compares ${currentBranchName} and ${targetBranchName} ⌛`
+        `Please wait while \`bundle-checker\` compares \`${currentBranchName}\` and \`${targetBranchName}\` ⌛`
       );
     }
     const report = await checker.compare();
