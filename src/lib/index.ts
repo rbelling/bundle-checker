@@ -87,7 +87,13 @@ export default class BundleChecker {
 
   private async cloneRepo(gitRepository: string) {
     this.spinner.start(`Cloning ${gitRepository}`);
-    await exec(`git clone ${gitRepository} .`);
+
+    const { GITHUB_TOKEN } = process.env;
+    // If there's a GITHUB_TOKEN env variable, use it to clone the repository
+    const authenticatedGitRepositoryUrl = Boolean(GITHUB_TOKEN)
+      ? gitRepository.replace(`https://github.com/`, `https://${GITHUB_TOKEN}@github.com/`)
+      : gitRepository;
+    await exec(`git clone ${authenticatedGitRepositoryUrl} .`);
     this.spinner.succeed();
   }
 
