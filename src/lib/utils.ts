@@ -124,14 +124,11 @@ export const normalizeSlugsInFileNames = (report: IFileSizeReport): IFileSizeRep
   );
 };
 
-/**
- * Posts a comment on a Pull Request, or updates an existing one if found
- */
-export async function commentOnPr({
+export const generateMarkdownReport = ({
   currentBranchName,
   report,
   targetBranchName
-}: IPrintableReport) {
+}: IPrintableReport): string => {
   const wrapInCollapsible = (
     content: string,
     collapsibleHeader: string = 'Details of bundled changes'
@@ -149,7 +146,14 @@ export async function commentOnPr({
       ...getFormattedRows(report)
     ])}`
   );
+  return `${overviewTable}\n\n${filesBreakDownTable}`;
+};
 
+/**
+ * Posts a comment on a Pull Request, or updates an existing one if found
+ */
+export async function commentOnPr(body: string) {
+  const watermarkedBody = `${body}\n\n${COMMENT_WATERMARK}`;
   try {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
     const PULL_REQUEST_NUMBER = Number(
@@ -160,7 +164,6 @@ export async function commentOnPr({
 
     const [owner, repo] = PULL_REQUEST_SLUG.split('/');
     const octokit = new Github({ auth: GITHUB_TOKEN });
-    const body = `${overviewTable}\n\n${filesBreakDownTable}\n\n${COMMENT_WATERMARK}`;
     const githubParams = {
       number: PULL_REQUEST_NUMBER,
       owner,
@@ -168,8 +171,12 @@ export async function commentOnPr({
     };
     const commentId = await getExistingCommentId({ ...githubParams, auth: GITHUB_TOKEN });
     if (commentId)
-      return await octokit.issues.updateComment({ ...githubParams, comment_id: commentId, body });
-    return octokit.issues.createComment({ ...githubParams, body });
+      return await octokit.issues.updateComment({
+        ...githubParams,
+        body: watermarkedBody,
+        comment_id: commentId
+      });
+    return octokit.issues.createComment({ ...githubParams, body: watermarkedBody });
   } catch (error) {
     console.error(error);
   }

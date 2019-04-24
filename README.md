@@ -17,6 +17,7 @@ Summary:
 
 ## Usage
 
+If cloning a private repository, please make sure the `GITHUB_TOKEN` env variable is available.
 ```bash
 $ npx bundle-checker compare \
         --gitRepository='https://github.com/ramda/ramda.git' \
