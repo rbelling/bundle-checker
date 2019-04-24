@@ -15,7 +15,7 @@
     "globby": "^9.2.0",
     "ora": "^3.3.0",
     "ramda": "0.26.1",
-    "size-limit": "^1.0.0",
+    "size-limit": "1.0.1",
     "tslib": "^1"
   },
   "description": "CLI tool that generates stats on bundle files",
@@ -103,5 +103,5 @@
     "prepack": "rm -rf ./build && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest"
   },
-  "version": "1.0.4"
+  "version": "1.0.5"
 }
