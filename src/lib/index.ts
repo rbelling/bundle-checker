@@ -97,9 +97,9 @@ export default class BundleChecker {
     await exec(`git clean -f`);
     await exec(`git checkout ${branch}`);
     this.spinner.succeed().start(`Install`);
-    await exec(this.inputParams.installScript);
+    await exec(this.inputParams.installScript, { maxBuffer: 20000 * 1024 });
     this.spinner.succeed().start(`Building`);
-    await exec(this.inputParams.buildScript);
+    await exec(this.inputParams.buildScript, { maxBuffer: 20000 * 1024 });
     this.spinner.succeed();
   }
 
