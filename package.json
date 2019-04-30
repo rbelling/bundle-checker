@@ -100,7 +100,7 @@
     "lint:fix": "yarn lint --fix",
     "lint": "tslint src/**/*.ts",
     "postpack": "rm -f oclif.manifest.json",
-    "prepack": "rm -rf ./build && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",
     "test": "jest"
   },
   "version": "1.2.0"
