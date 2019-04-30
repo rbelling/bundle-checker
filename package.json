@@ -97,7 +97,6 @@
   },
   "scripts": {
     "build": "rm -rf ./build/* && tsc -p ./tsconfig.prod.json",
-    "lint:fix": "yarn lint --fix",
     "lint": "tslint src/**/*.ts",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",
