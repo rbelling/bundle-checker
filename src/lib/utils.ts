@@ -236,7 +236,10 @@ const getFilesBreakDownTable = ({
 const sortByDelta = (a: IAbstractTableRow, b: IAbstractTableRow) => {
   const bDelta = b[1] - b[2];
   const aDelta = a[1] - a[2];
-  if (bDelta - aDelta > 0) return 1;
-  if (bDelta - aDelta < 0) return -1;
-  return 0;
+  if (aDelta !== bDelta) {
+    if (bDelta === 0 || (aDelta > bDelta && aDelta !== 0)) {
+      return -1;
+    }
+  }
+  return 1;
 };
