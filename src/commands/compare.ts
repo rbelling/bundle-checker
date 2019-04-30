@@ -23,7 +23,10 @@ export default class Compare extends Command {
     }),
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
-    installScript: OclifFlags.string({ description: 'installScript', default: 'npm install' }),
+    installScript: OclifFlags.string({
+      default: 'npm ci || npm install',
+      description: 'installScript'
+    }),
     prComment: OclifFlags.boolean({ description: 'Comment on PR', default: false }),
     targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' })
   };
