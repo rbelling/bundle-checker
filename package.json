@@ -12,6 +12,7 @@
     "@oclif/plugin-help": "^2",
     "@octokit/rest": "16.23.4",
     "bytes": "^3.1.0",
+    "console.table": "^0.10.0",
     "globby": "^9.2.0",
     "ora": "^3.3.0",
     "ramda": "0.26.1",

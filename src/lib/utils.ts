@@ -11,6 +11,7 @@ import {
   IPrintableReport,
   ITableRow
 } from '../../types/bundle-checker-types';
+import consoleTable from 'console.table';
 
 const SHARED_TABLE_VALUES = {
   FILES_BREAKDOWN_TITLE: 'All targeted files',
