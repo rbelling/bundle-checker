@@ -5,3 +5,8 @@ declare module 'size-limit' {
   }
   export default function(files: string[] | string, options?: any): Promise<ISizeLimitResponse>;
 }
+
+// A polyfill for node v8 who doesn't support console.table
+declare module 'console.table' {
+  export default function(): undefined;
+}

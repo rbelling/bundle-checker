@@ -1,5 +1,6 @@
 import Github from '@octokit/rest';
 import printBytes from 'bytes';
+import 'console.table';
 import path from 'path';
 import { groupBy, replace, zipObj } from 'ramda';
 import {
@@ -11,7 +12,6 @@ import {
   IPrintableReport,
   ITableRow
 } from '../../types/bundle-checker-types';
-import consoleTable from 'console.table';
 
 const SHARED_TABLE_VALUES = {
   FILES_BREAKDOWN_TITLE: 'All targeted files',

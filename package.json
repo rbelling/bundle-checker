@@ -103,5 +103,5 @@
     "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",
     "test": "jest"
   },
-  "version": "1.3.0"
+  "version": "1.3.1"
 }
