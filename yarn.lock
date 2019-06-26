@@ -1789,7 +1789,7 @@ console-control-strings@^1.0.0, console-control-strings@~1.1.0:
 
 console.table@^0.10.0:
   version "0.10.0"
-  resolved "https://hbc.jfrog.io/hbc/api/npm/hbc-virt-npm/console.table/-/console.table-0.10.0.tgz#0917025588875befd70cf2eff4bef2c6e2d75d04"
+  resolved "https://registry.yarnpkg.com/console.table/-/console.table-0.10.0.tgz#0917025588875befd70cf2eff4bef2c6e2d75d04"
   integrity sha1-CRcCVYiHW+/XDPLv9L7yxuLXXQQ=
   dependencies:
     easy-table "1.1.0"
@@ -2396,7 +2396,7 @@ duplexify@^3.4.2, duplexify@^3.6.0:
 
 easy-table@1.1.0:
   version "1.1.0"
-  resolved "https://hbc.jfrog.io/hbc/api/npm/hbc-virt-npm/easy-table/-/easy-table-1.1.0.tgz#86f9ab4c102f0371b7297b92a651d5824bc8cb73"
+  resolved "https://registry.yarnpkg.com/easy-table/-/easy-table-1.1.0.tgz#86f9ab4c102f0371b7297b92a651d5824bc8cb73"
   integrity sha1-hvmrTBAvA3G3KXuSplHVgkvIy3M=
   optionalDependencies:
     wcwidth ">=1.0.1"
@@ -7713,7 +7713,7 @@ watchpack@^1.5.0:
 
 wcwidth@>=1.0.1, wcwidth@^1.0.1:
   version "1.0.1"
-  resolved "https://hbc.jfrog.io/hbc/api/npm/hbc-virt-npm/wcwidth/-/wcwidth-1.0.1.tgz#f0b0dcf915bc5ff1528afadb2c0e17b532da2fe8"
+  resolved "https://registry.yarnpkg.com/wcwidth/-/wcwidth-1.0.1.tgz#f0b0dcf915bc5ff1528afadb2c0e17b532da2fe8"
   integrity sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=
   dependencies:
     defaults "^1.0.3"
