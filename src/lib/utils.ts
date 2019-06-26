@@ -1,5 +1,6 @@
 import Github from '@octokit/rest';
 import printBytes from 'bytes';
+import 'console.table';
 import path from 'path';
 import { groupBy, replace, zipObj } from 'ramda';
 import {
