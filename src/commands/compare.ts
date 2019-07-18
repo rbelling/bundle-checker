@@ -17,7 +17,10 @@ export default class Compare extends Command {
       description: 'buildFilesPatterns',
       required: true
     }),
-    buildScript: OclifFlags.string({ description: 'buildScript', default: 'npm run build' }),
+    buildScript: OclifFlags.string({
+      default: 'NODE_ENV=production npm run build',
+      description: 'buildScript'
+    }),
     currentBranch: OclifFlags.string({
       description: '[default: branch detected] currentBranch'
     }),

@@ -32,7 +32,7 @@ All parameters are optionals, defaults:
 
 | Parameter          | Default                            |
 | ------------------ | ---------------------------------- |
-| buildScript        | npm run build                      |
+| buildScript        | NODE_ENV=production npm run build  |
 | currentBranch      | current branch detected            |
 | gitRepository      | repo where command is run          |
 | installScript      | npm install                        |
