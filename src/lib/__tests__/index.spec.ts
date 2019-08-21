@@ -56,4 +56,21 @@ describe('Bundle Checker', () => {
     );
     expect(getTotal(targetBranchReport)).toEqual(getTotal(currentBranchReport));
   });
+
+  test(`Attempts to merge `, async () => {
+    expect(result).toEqual({
+      currentBranchReport: {
+        '/build/commands/compare.js': 2550,
+        '/build/index.js': 149,
+        '/build/lib/index.js': 5796,
+        '/build/lib/utils.js': 3037
+      },
+      targetBranchReport: {
+        '/build/commands/compare.js': 2550,
+        '/build/index.js': 149,
+        '/build/lib/index.js': 5796,
+        '/build/lib/utils.js': 3037
+      }
+    });
+  });
 });
