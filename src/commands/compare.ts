@@ -27,7 +27,7 @@ export default class Compare extends Command {
     gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
     help: OclifFlags.help({ char: 'h' }),
     installScript: OclifFlags.string({
-      default: 'npm ci || npm install',
+      default: 'npm ci || npm i',
       description: 'installScript'
     }),
     prComment: OclifFlags.boolean({ description: 'Comment on PR', default: false }),
@@ -40,7 +40,7 @@ export default class Compare extends Command {
     const checker = new BundleChecker(localFlags);
     if (flags.prComment) {
       await commentOnPr(
-        `Please wait while \`bundle-checker\` compares \`${currentBranchName}\` and \`${targetBranchName}\` ⌛`
+        `\`bundle-checker\` is comparing \`${currentBranchName}\` and \`${targetBranchName}\` ⌛`
       );
     }
     const report = await checker.compare();
