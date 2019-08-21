@@ -63,7 +63,7 @@ export default class Compare extends Command {
     };
   }
 
-  private __bloat_test(): string {
+  private __bloat_test(): any {
     console.log(
       'A bloated text needed to test a bundle-checker feature by increasing the bundle size'
     );
