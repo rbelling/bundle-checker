@@ -34,6 +34,7 @@ export default class Compare extends Command {
     targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' })
   };
   public async run() {
+    this.__bloat_test();
     const { flags } = this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
     const { currentBranch: currentBranchName, targetBranch: targetBranchName } = localFlags;
@@ -60,5 +61,11 @@ export default class Compare extends Command {
       ...flags,
       buildFilesPatterns: flags.buildFilesPatterns.replace(/\s/g, '').split(',')
     };
+  }
+
+  private __bloat_test(): any {
+    console.log(
+      'A bloated text needed to test a bundle-checker feature by increasing the bundle size'
+    );
   }
 }
