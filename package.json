@@ -19,7 +19,7 @@
     "size-limit": "1.0.1",
     "tslib": "^1"
   },
-  "description": "CLI tool that generates stats on bundle files",
+  "description": "CLI tool to generate stats on the size of files between two git branches",
   "devDependencies": {
     "@oclif/dev-cli": "^1",
     "@oclif/test": "^1",
@@ -80,14 +80,16 @@
   },
   "keywords": [
     "bundle size",
-    "ci tool",
-    "performance monitoring"
+    "CI/CD",
+    "code review",
+    "performance monitoring",
+    "TypeScript"
   ],
   "license": "ISC",
   "lint-staged": {
     "*.ts": [
-      "git add",
-      "tslint --fix"
+      "tslint --fix",
+      "git add"
     ]
   },
   "main": "index.js",
