@@ -35,7 +35,7 @@ All parameters are optionals, defaults:
 | buildScript        | NODE_ENV=production npm run build  |
 | currentBranch      | current branch detected            |
 | gitRepository      | repo where command is run          |
-| installScript      | npm install                        |
+| installScript      | npm ci                             |
 | prComment          | false                              |
 | targetBranch       | master                             |
 | buildFilesPatterns | build/\*\*/\*.js,build/\*\*/\*.css |
