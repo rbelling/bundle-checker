@@ -90,11 +90,14 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
     groupFilesByExtension(Object.keys(report) as ReadonlyArray<string>)
   ) as ReadonlyArray<string>;
 
-  return zipObj(keysGroupedByExtension, keysGroupedByExtension.map(fileExtension =>
-    Object.keys(report)
-      .filter(file => path.extname(file) === fileExtension)
-      .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
-  ) as ReadonlyArray<number>);
+  return zipObj(
+    keysGroupedByExtension,
+    keysGroupedByExtension.map(fileExtension =>
+      Object.keys(report)
+        .filter(file => path.extname(file) === fileExtension)
+        .reduce((sequence: number, currentFileName) => sequence + report[currentFileName], 0)
+    ) as ReadonlyArray<number>
+  );
 };
 
 /**
@@ -235,12 +238,9 @@ const getFilesBreakDownTable = ({
   }));
 
 const sortByDelta = (a: IAbstractTableRow, b: IAbstractTableRow) => {
-  const bDelta = b[1] - b[2];
   const aDelta = a[1] - a[2];
-  if (aDelta !== bDelta) {
-    if (bDelta === 0 || (aDelta > bDelta && aDelta !== 0)) {
-      return -1;
-    }
-  }
+  const bDelta = b[1] - b[2];
+
+  if (Math.abs(aDelta) > Math.abs(bDelta)) return -1;
   return 1;
 };

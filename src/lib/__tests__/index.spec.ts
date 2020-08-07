@@ -1,6 +1,10 @@
-import { add, pipe, reduce, values } from 'ramda';
+import { add, values } from 'ramda';
 import BundleChecker from '..';
-import { IBundleCheckerParams, IBundleCheckerReport } from '../../../types/bundle-checker-types';
+import {
+  IBundleCheckerParams,
+  IBundleCheckerReport,
+  IFileSizeReport
+} from '../../../types/bundle-checker-types';
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
@@ -50,10 +54,7 @@ describe('Bundle Checker', () => {
 
   test(`CurrentBranchReport and TargetBranchReport has same total sizes`, async () => {
     const { currentBranchReport, targetBranchReport } = result;
-    const getTotal = pipe(
-      values,
-      reduce(add, 0 as any)
-    );
+    const getTotal = (_: IFileSizeReport) => values(_).reduce(add, 0);
     expect(getTotal(targetBranchReport)).toEqual(getTotal(currentBranchReport));
   });
 });
