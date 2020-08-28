@@ -1,21 +1,15 @@
-import { add, values } from 'ramda';
 import BundleChecker from '..';
-import {
-  IBundleCheckerParams,
-  IBundleCheckerReport,
-  IFileSizeReport
-} from '../../../types/bundle-checker-types';
+import { IBundleCheckerParams, IBundleCheckerReport } from '../../../types/bundle-checker-types';
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
-const TEST_BRANCH = 'TEST_BRANCH_DO_NOT_DELETE';
 const dummyParams: IBundleCheckerParams = {
   buildFilesPatterns: ['build/**/*.js'],
   buildScript: 'yarn build',
-  currentBranch: TEST_BRANCH,
+  currentBranch: 'BLOATED_DO_NOT_DELETE',
   gitRepository: 'https://github.com/rbelling/bundle-checker.git',
   installScript: 'yarn',
-  targetBranch: TEST_BRANCH
+  targetBranch: 'SLIM_DO_NOT_DELETE'
 };
 
 describe('Bundle Checker', () => {
@@ -30,31 +24,17 @@ describe('Bundle Checker', () => {
   test(`Can get bundle size of two branches`, async () => {
     expect(result).toEqual({
       currentBranchReport: {
-        '/build/commands/compare.js': 2550,
+        '/build/commands/compare.js': 4062,
         '/build/index.js': 149,
-        '/build/lib/index.js': 5796,
-        '/build/lib/utils.js': 3037
+        '/build/lib/index.js': 7316,
+        '/build/lib/utils.js': 8993
       },
       targetBranchReport: {
-        '/build/commands/compare.js': 2550,
+        '/build/commands/compare.js': 3873,
         '/build/index.js': 149,
-        '/build/lib/index.js': 5796,
-        '/build/lib/utils.js': 3037
+        '/build/lib/index.js': 7316,
+        '/build/lib/utils.js': 8993
       }
     });
-  });
-
-  test(`CurrentBranchReport has 4 entries`, async () => {
-    expect(Object.entries(result.currentBranchReport).length).toEqual(4);
-  });
-
-  test(`TargetBranchReport has 4 entries`, async () => {
-    expect(Object.entries(result.targetBranchReport).length).toEqual(4);
-  });
-
-  test(`CurrentBranchReport and TargetBranchReport has same total sizes`, async () => {
-    const { currentBranchReport, targetBranchReport } = result;
-    const getTotal = (_: IFileSizeReport) => values(_).reduce(add, 0);
-    expect(getTotal(targetBranchReport)).toEqual(getTotal(currentBranchReport));
   });
 });
