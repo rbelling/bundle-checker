@@ -86,20 +86,35 @@ describe('generating markdown tables', () => {
     expect(squashReportByFileExtension(input)).toMatchObject(expectedOutput);
   });
 
-  it('Is able to replace an ellipsis to the second-to-last slug of a file name, unless its `.min`', () => {
+  it('Is able to replace an ellipsis to each dot-separated slug', () => {
     const input = {
       '/build/commands/a.1fasd123.js': 2550,
-      '/build/lib/utils.3gaqd329.js': 3037,
+      '/build/lib/1.zf87zlkx.3gaqd329.js': 187,
+      '/build/lib/utils.3gaqd329.css': 3037,
       '/build/z/nohash.js': 150,
-      '/build/z/shared.min.js': 300,
       '/build/z/slugs.another.123123123.js': 300
     };
     const expectedOutput = {
       '/build/commands/a.[…].js': 2550,
-      '/build/lib/utils.[…].js': 3037,
+      '/build/lib/1.[…].[…].js': 187,
+      '/build/lib/utils.[…].css': 3037,
       '/build/z/nohash.js': 150,
+      '/build/z/slugs.[…].[…].js': 300
+    };
+
+    expect(normalizeSlugsInFileNames(input)).toMatchObject(expectedOutput);
+  });
+
+  it('Leaves `.min` and `.MIN` unaltered in the final report', () => {
+    const input = {
       '/build/z/shared.min.js': 300,
-      '/build/z/slugs.another.[…].js': 300
+      '/build/z/utils.zj67zjkx.MIN.zf87zlkl.js': 310,
+      'app.min.ajh76yu.js': 415
+    };
+    const expectedOutput = {
+      '/build/z/shared.min.js': 300,
+      '/build/z/utils.[…].MIN.[…].js': 310,
+      'app.min.[…].js': 415
     };
 
     expect(normalizeSlugsInFileNames(input)).toMatchObject(expectedOutput);

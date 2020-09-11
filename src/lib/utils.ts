@@ -2,7 +2,7 @@ import Github from '@octokit/rest';
 import printBytes from 'bytes';
 import 'console.table';
 import path from 'path';
-import { groupBy, replace, zipObj } from 'ramda';
+import { groupBy, zipObj } from 'ramda';
 import {
   IAbstractTableRow,
   IBundleCheckerReport,
@@ -106,20 +106,24 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
  * @param report
  */
 export const normalizeSlugsInFileNames = (report: IFileSizeReport): IFileSizeReport => {
-  const ELLIPSIS = '.[…].';
-
   const normalizedKeys = Object.keys(report).map((fileName: string) => {
-    const fileNameSlugs = path.parse(fileName).name.split('.');
-    const acceptancePredicates: Array<(_: string[]) => boolean> = [
-      // Are there at least 2 slugs?
-      _ => _.length > 1,
-      // Is the last slug different from `min`?
-      _ => _.slice(-1)[0] !== 'min'
-    ];
+    const { base, dir } = path.parse(fileName);
+    const fileNameSlugs = base.split('.');
 
-    return acceptancePredicates.reduce((seq: boolean, fn) => seq && fn(fileNameSlugs), true)
-      ? replace(`.${fileNameSlugs[fileNameSlugs.length - 1]}.`, ELLIPSIS, fileName)
-      : fileName;
+    const normalizedFileName = fileNameSlugs
+      .map((slug, index) => {
+        switch (true) {
+          case index === 0:
+          case index === fileNameSlugs.length - 1:
+          case slug.toLowerCase() === 'min':
+            return slug;
+          default:
+            return '[…]';
+        }
+      })
+      .join('.');
+
+    return path.join(dir, normalizedFileName);
   });
 
   return zipObj(
