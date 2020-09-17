@@ -116,6 +116,7 @@ export const normalizeSlugsInFileNames = (report: IFileSizeReport): IFileSizeRep
           case index === 0:
           case index === fileNameSlugs.length - 1:
           case slug.toLowerCase() === 'min':
+          case slug.toLowerCase() === 'chunk':
             return slug;
           default:
             return '[…]';

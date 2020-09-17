@@ -92,14 +92,16 @@ describe('generating markdown tables', () => {
       '/build/lib/1.zf87zlkx.3gaqd329.js': 187,
       '/build/lib/utils.3gaqd329.css': 3037,
       '/build/z/nohash.js': 150,
-      '/build/z/slugs.another.123123123.js': 300
+      '/build/z/slugs.another.123123123.js': 300,
+      '/static/js/utils.a7jh8iuk.chunk.js': 867
     };
     const expectedOutput = {
       '/build/commands/a.[…].js': 2550,
       '/build/lib/1.[…].[…].js': 187,
       '/build/lib/utils.[…].css': 3037,
       '/build/z/nohash.js': 150,
-      '/build/z/slugs.[…].[…].js': 300
+      '/build/z/slugs.[…].[…].js': 300,
+      '/static/js/utils.[…].chunk.js': 867
     };
 
     expect(normalizeSlugsInFileNames(input)).toMatchObject(expectedOutput);
