@@ -54,7 +54,7 @@ export default class BundleChecker {
         targetBranchReport
       };
     } catch (e) {
-      this.spinner.fail(e);
+      this.spinner.fail(`${e}`);
       error(e);
     }
     await this.destroy();

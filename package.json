@@ -40,7 +40,7 @@
     "tslint": "^5.15.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.3.3333"
+    "typescript": "^5.5.4"
   },
   "homepage": "https://github.com/rbelling/bundle-checker#readme",
   "husky": {
@@ -101,7 +101,7 @@
     "lint": "tslint src/**/*.ts",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "npm run build && oclif-dev manifest && oclif-dev readme",
-    "test": "jest"
+    "test": "tsc --noEmit && jest"
   },
   "version": "1.5.0"
 }
