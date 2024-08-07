@@ -5,10 +5,10 @@ const TEN_MINUTES = 10 * 60 * 1000;
 
 const dummyParams: IBundleCheckerParams = {
   buildFilesPatterns: ['build/**/*.js'],
-  buildScript: 'yarn build',
+  buildScript: 'npm run build',
   currentBranch: 'BLOATED_DO_NOT_DELETE',
   gitRepository: 'https://github.com/rbelling/bundle-checker.git',
-  installScript: 'yarn',
+  installScript: 'npm i',
   targetBranch: 'SLIM_DO_NOT_DELETE'
 };
 

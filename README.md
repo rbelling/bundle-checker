@@ -62,7 +62,7 @@ Those are read from `TRAVIS_PULL_REQUEST` and `TRAVIS_PULL_REQUEST_SLUG` automat
 ## Develop and test locally the CLI
 
 ```bash
-$ yarn pack
+$ npm run pack
 $ ./bin/run compare
 ```
 
