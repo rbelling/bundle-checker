@@ -32,35 +32,36 @@ export function withDeltaSize(a: number = 0, b: number = 0): string {
   return `${printBytes(b)} (${icon}${printBytes(Math.abs(b - a))})`
 }
 
+const escape = (markdownString: string): string => {
+  const replacements = [
+    [/\*/g, '\\*'],
+    [/#/g, '\\#'],
+    [/\//g, '\\/'],
+    [/\(/g, '\\('],
+    [/\)/g, '\\)'],
+    [/\[/g, '\\['],
+    [/]/g, '\\]'],
+    [/</g, '&lt;'],
+    [/>/g, '&gt;'],
+    [/_/g, '\\_'],
+  ]
+
+  // eslint-disable-next-line unicorn/no-array-reduce
+  return replacements.reduce(
+    (_sequence, current) => markdownString.replace(current[0], current[1] as string),
+    markdownString,
+  )
+}
+
 export function createMarkdownTable([headerRow, ...contentRows]: ITableRow[]): string {
-  const escape = (markdownString: string): string => {
-    const replacements = [
-      [/\*/g, '\\*'],
-      [/#/g, '\\#'],
-      [/\//g, '\\/'],
-      [/\(/g, '\\('],
-      [/\)/g, '\\)'],
-      [/\[/g, '\\['],
-      [/]/g, '\\]'],
-      [/</g, '&lt;'],
-      [/>/g, '&gt;'],
-      [/_/g, '\\_'],
-    ]
-
-    return replacements.reduce(
-      (sequence, current) => markdownString.replace(current[0], current[1] as string),
-      markdownString,
-    )
-  }
-
   const buildHeader = (headers: ITableRow): string =>
-    `| ${headers.join(' | ')} |\n` + `| ${headers.map((_) => '---').join(' | ')} |`
+    `| ${headers.join(' | ')} |\n| ${headers.map((_) => '---').join(' | ')} |`
 
   const buildRow = (row: ITableRow): string => `| ${row.join(' | ')} |`
 
-  const buildRows = (rows: ITableRow[]): string => rows.map(buildRow).join('\n')
+  const buildRows = (rows: ITableRow[]): string => rows.map((element) => buildRow(element)).join('\n')
 
-  return escape(`${buildHeader(headerRow)}\n` + `${buildRows(contentRows)}`)
+  return escape(`${buildHeader(headerRow)}\n${buildRows(contentRows)}`)
 }
 
 export const groupFilesByExtension = groupBy(path.extname)
@@ -100,10 +101,10 @@ export const squashReportByFileExtension = (report: IFileSizeReport): IFileSizeR
   )
 }
 
+// eslint-disable-next-line valid-jsdoc
 /**
  * Attempts to normalize file names by replacing the last slug before file extension (most-likely a webpack hash)
  * with an ellipsis, unless it's `.min`.
- * @param report
  */
 export const normalizeSlugsInFileNames = (report: IFileSizeReport): IFileSizeReport => {
   const normalizedKeys = Object.keys(report).map((fileName: string) => {
@@ -133,9 +134,10 @@ export const normalizeSlugsInFileNames = (report: IFileSizeReport): IFileSizeRep
   return zipObj(normalizedKeys as ReadonlyArray<string>, Object.values(report) as ReadonlyArray<number>)
 }
 
+const wrapInCollapsible = (content: string, collapsibleHeader: string = 'Details of bundled changes') =>
+  `<details><summary>${collapsibleHeader}</summary>\n\n${content}\n\n</details>`
+
 export const generateMarkdownReport = ({currentBranchName, report, targetBranchName}: IPrintableReport): string => {
-  const wrapInCollapsible = (content: string, collapsibleHeader: string = 'Details of bundled changes') =>
-    `<details><summary>${collapsibleHeader}</summary>\n\n${content}\n\n</details>`
   const overviewTable = `### ${SHARED_TABLE_VALUES.TOTALS_TITLE}\n${createMarkdownTable([
     [SHARED_TABLE_VALUES.FILE_EXTENSION, currentBranchName, targetBranchName],
     ...getFormattedRows({
@@ -152,9 +154,7 @@ export const generateMarkdownReport = ({currentBranchName, report, targetBranchN
   return `${overviewTable}\n\n${filesBreakDownTable}`
 }
 
-/**
- * Posts a comment on a Pull Request, or updates an existing one if found
- */
+// Posts a comment on a Pull Request, or updates an existing one if found
 export async function commentOnPr(body: string) {
   const watermarkedBody = `${body}\n\n${COMMENT_WATERMARK}`
   try {
@@ -174,6 +174,7 @@ export async function commentOnPr(body: string) {
       return await octokit.issues.updateComment({
         ...githubParams,
         body: watermarkedBody,
+        // eslint-disable-next-line camelcase
         comment_id: commentId,
       })
     return octokit.issues.createComment({...githubParams, body: watermarkedBody})
@@ -218,7 +219,7 @@ const getConsoleTotalTable = ({currentBranchName, report, targetBranchName}: IPr
   }))
 }
 
-const getFilesBreakDownTable = ({currentBranchName, report, targetBranchName}: IPrintableReport): any =>
+const getFilesBreakDownTable = ({currentBranchName, report, targetBranchName}: IPrintableReport) =>
   getFormattedRows(report).map(([fileName, currentSize, targetSize]) => ({
     [SHARED_TABLE_VALUES.FILE_NAME]: fileName,
     [currentBranchName]: currentSize,

@@ -77,7 +77,7 @@ export default class BundleChecker {
 
   private async cleanDist() {
     this.spinner.start(`Cleaning dist`)
-    ;(await this.getTargetedFiles(this.inputParams.buildFilesPatterns)).map(fs.unlinkSync)
+    ;(await this.getTargetedFiles(this.inputParams.buildFilesPatterns)).map((element) => fs.unlinkSync(element))
     this.spinner.succeed()
   }
 
@@ -100,13 +100,13 @@ export default class BundleChecker {
     }
   }
 
-  /**
-   * From whatever the current branch is, returns a list of each files that are matched by `buildFilesPatterns`
-   */
+  // From whatever the current branch is, returns a list of each files that are matched by `buildFilesPatterns`
   private async getSingleBranchReport(): Promise<IFileSizeReport> {
     this.spinner.start(`Calculating sizes of files matching: \`${this.inputParams.buildFilesPatterns}\``)
     const targetedFiles = await this.getTargetedFiles(this.inputParams.buildFilesPatterns)
-    const fileSizes = (await Promise.all(targetedFiles.map(this.safeGetSize))) as ReadonlyArray<number>
+    const fileSizes = (await Promise.all(
+      targetedFiles.map((element) => this.safeGetSize(element)),
+    )) as ReadonlyArray<number>
     const filePaths = targetedFiles.map((file) => file.replace(this.workDir, '')) as ReadonlyArray<string>
     this.spinner.succeed()
     return zipObj(filePaths, fileSizes)
