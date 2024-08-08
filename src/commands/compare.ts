@@ -1,69 +1,73 @@
-import { exec as childProcessExec } from 'child_process';
-import * as util from 'util';
-import BundleChecker from '../lib';
-import { commentOnPr, generateMarkdownReport, printStdout } from '../lib/utils';
-import { SetRequired } from 'type-fest';
-import {Command, Flags as OclifFlags} from "@oclif/core";
-import {OutputFlags} from "@oclif/core/lib/interfaces";
+import {Command, Flags as OclifFlags} from '@oclif/core'
+import {OutputFlags} from '@oclif/core/lib/interfaces'
+import {exec as childProcessExec} from 'node:child_process'
+import * as util from 'node:util'
+import {SetRequired} from 'type-fest'
 
-const exec = util.promisify(childProcessExec);
+import BundleChecker from '../lib'
+import {commentOnPr, generateMarkdownReport, printStdout} from '../lib/utils'
 
-export type BundleCheckerFlags = (typeof Compare)['flags'];
+const exec = util.promisify(childProcessExec)
+
+export type BundleCheckerFlags = (typeof Compare)['flags']
 
 export default class Compare extends Command {
-  public static description = 'Compare the size of build files in two git branches.';
-  public static examples = [`$ npx bundle-checker compare`];
+  public static description = 'Compare the size of build files in two git branches.'
+  public static examples = [`$ npx bundle-checker compare`]
 
   public static flags = {
     buildFilesPatterns: OclifFlags.string({
       default: 'build/**/*.js,build/**/*.css',
       description: 'buildFilesPatterns',
-      required: true
+      required: true,
     }),
     buildScript: OclifFlags.string({
       default: 'NODE_ENV=production npm run build',
-      description: 'buildScript'
+      description: 'buildScript',
     }),
     currentBranch: OclifFlags.string({
-      description: '[default: branch detected] currentBranch'
+      description: '[default: branch detected] currentBranch',
     }),
-    gitRepository: OclifFlags.string({ description: '[default: current git repo] gitRepository' }),
-    help: OclifFlags.help({ char: 'h' }),
+    gitRepository: OclifFlags.string({description: '[default: current git repo] gitRepository'}),
+    help: OclifFlags.help({char: 'h'}),
     installScript: OclifFlags.string({
       default: 'npm ci || npm install',
-      description: 'installScript'
+      description: 'installScript',
     }),
-    prComment: OclifFlags.boolean({ description: 'Comment on PR', default: false }),
-    targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' })
-  };
+    prComment: OclifFlags.boolean({default: false, description: 'Comment on PR'}),
+    targetBranch: OclifFlags.string({default: 'master', description: 'targetBranch'}),
+  }
+
   public async run() {
-    const { flags } = await this.parse(Compare);
-    const localFlags = await this.mergeFlagsWithDefaults(flags);
-    const { currentBranch: currentBranchName, targetBranch: targetBranchName } = localFlags;
-    const checker = new BundleChecker(localFlags);
+    const {flags} = await this.parse(Compare)
+    const localFlags = await this.mergeFlagsWithDefaults(flags)
+    const {currentBranch: currentBranchName, targetBranch: targetBranchName} = localFlags
+    const checker = new BundleChecker(localFlags)
     if (flags.prComment) {
       await commentOnPr(
-        `Please wait while \`bundle-checker\` compares \`${currentBranchName}\` and \`${targetBranchName}\` ⌛`
-      );
+        `Please wait while \`bundle-checker\` compares \`${currentBranchName}\` and \`${targetBranchName}\` ⌛`,
+      )
     }
-    const report = await checker.compare();
+
+    const report = await checker.compare()
     if (flags.prComment) {
-      await commentOnPr(generateMarkdownReport({ currentBranchName, report, targetBranchName }));
+      await commentOnPr(generateMarkdownReport({currentBranchName, report, targetBranchName}))
     }
-    await printStdout({ currentBranchName, report, targetBranchName });
+
+    await printStdout({currentBranchName, report, targetBranchName})
   }
 
   private async mergeFlagsWithDefaults(flags: OutputFlags<BundleCheckerFlags>) {
-    const defaults = {} as SetRequired<OutputFlags<BundleCheckerFlags>, 'currentBranch'>;
+    const defaults = {} as SetRequired<OutputFlags<BundleCheckerFlags>, 'currentBranch'>
     if (!flags.currentBranch) {
-      const { stdout } = await exec('git rev-parse --abbrev-ref HEAD');
-      defaults.currentBranch = stdout.trim();
+      const {stdout} = await exec('git rev-parse --abbrev-ref HEAD')
+      defaults.currentBranch = stdout.trim()
     }
 
     return {
       ...defaults,
       ...flags,
-      buildFilesPatterns: flags.buildFilesPatterns.replace(/\s/g, '').split(',')
-    };
+      buildFilesPatterns: flags.buildFilesPatterns.replaceAll(/\s/g, '').split(','),
+    }
   }
 }

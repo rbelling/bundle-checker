@@ -18,6 +18,7 @@ Summary:
 ## Usage
 
 If cloning a private repository, please make sure the `GITHUB_TOKEN` env variable is available.
+
 ```bash
 $ npx bundle-checker compare \
         --gitRepository='https://github.com/ramda/ramda.git' \
@@ -50,14 +51,14 @@ $ npx bundle-checker --prComment
 
 The command needs 3 env variable set:
 
-| var                        | Desc                   |
-| -------------------------- | ---------------------- |
-| _PULL_REQUEST_NUMBER_      | Number of pull request |
-| _PULL_REQUEST_SLUG_        | e.g. _facebook/react_  |
-| _GITHUB_TOKEN_             | secret to be setup     |
+| var                   | Desc                   |
+| --------------------- | ---------------------- |
+| _PULL_REQUEST_NUMBER_ | Number of pull request |
+| _PULL_REQUEST_SLUG_   | e.g. _facebook/react_  |
+| _GITHUB_TOKEN_        | secret to be setup     |
 
-> If you're working with Travis, no need to setup env variables `PULL_REQUEST_NUMBER` or `PULL_REQUEST_SLUG`. 
-Those are read from `TRAVIS_PULL_REQUEST` and `TRAVIS_PULL_REQUEST_SLUG` automatically.
+> If you're working with Travis, no need to setup env variables `PULL_REQUEST_NUMBER` or `PULL_REQUEST_SLUG`.
+> Those are read from `TRAVIS_PULL_REQUEST` and `TRAVIS_PULL_REQUEST_SLUG` automatically.
 
 ## Develop and test locally the CLI
 
