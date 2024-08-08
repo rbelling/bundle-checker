@@ -21,7 +21,7 @@
     "globby": "^9.2.0",
     "oclif": "^4",
     "ora": "^3.3.0",
-    "ramda": "0.26.1",
+    "ramda": "^0.30.1",
     "size-limit": "1.0.1"
   },
   "description": "CLI tool to generate stats on the size of files between two git branches",
@@ -30,7 +30,7 @@
     "@oclif/test": "^4",
     "@types/bytes": "^3.0.0",
     "@types/jest": "^29.5.12",
-    "@types/ramda": "0.26.1",
+    "@types/ramda": "^0.30.1",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "eslint": "^8",
     "eslint-config-oclif": "^5",
