@@ -1,16 +1,19 @@
-import { Command, flags as OclifFlags } from '@oclif/command';
 import { exec as childProcessExec } from 'child_process';
 import * as util from 'util';
 import BundleChecker from '../lib';
 import { commentOnPr, generateMarkdownReport, printStdout } from '../lib/utils';
+import { SetRequired } from 'type-fest';
+import {Command, Flags as OclifFlags} from "@oclif/core";
+import {OutputFlags} from "@oclif/core/lib/interfaces";
 
 const exec = util.promisify(childProcessExec);
+
+export type BundleCheckerFlags = (typeof Compare)['flags'];
 
 export default class Compare extends Command {
   public static description = 'Compare the size of build files in two git branches.';
   public static examples = [`$ npx bundle-checker compare`];
 
-  // TODO: Define interface for this.
   public static flags = {
     buildFilesPatterns: OclifFlags.string({
       default: 'build/**/*.js,build/**/*.css',
@@ -34,7 +37,7 @@ export default class Compare extends Command {
     targetBranch: OclifFlags.string({ description: 'targetBranch', default: 'master' })
   };
   public async run() {
-    const { flags } = this.parse(Compare);
+    const { flags } = await this.parse(Compare);
     const localFlags = await this.mergeFlagsWithDefaults(flags);
     const { currentBranch: currentBranchName, targetBranch: targetBranchName } = localFlags;
     const checker = new BundleChecker(localFlags);
@@ -49,12 +52,14 @@ export default class Compare extends Command {
     }
     await printStdout({ currentBranchName, report, targetBranchName });
   }
-  private async mergeFlagsWithDefaults(flags: any) {
-    const defaults = {} as any;
+
+  private async mergeFlagsWithDefaults(flags: OutputFlags<BundleCheckerFlags>) {
+    const defaults = {} as SetRequired<OutputFlags<BundleCheckerFlags>, 'currentBranch'>;
     if (!flags.currentBranch) {
       const { stdout } = await exec('git rev-parse --abbrev-ref HEAD');
       defaults.currentBranch = stdout.trim();
     }
+
     return {
       ...defaults,
       ...flags,
